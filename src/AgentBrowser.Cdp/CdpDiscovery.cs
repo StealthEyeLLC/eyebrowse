@@ -15,7 +15,11 @@ public sealed record ProtocolSummary(
     int DomainCount,
     string? Major,
     string? Minor,
-    IReadOnlyList<string> Domains);
+    IReadOnlyList<string> Domains,
+    IReadOnlySet<string> Commands)
+{
+    public bool Supports(string qualifiedCommand) => Commands.Contains(qualifiedCommand);
+}
 
 public static class CdpDiscovery
 {
@@ -54,12 +58,25 @@ public static class CdpDiscovery
 
         using var document = JsonDocument.Parse(await response.Content.ReadAsByteArrayAsync(cancellationToken));
         var root = document.RootElement;
-        var domains = root.GetProperty("domains")
-            .EnumerateArray()
+        var domainElements = root.GetProperty("domains").EnumerateArray().ToArray();
+        var domains = domainElements
             .Select(x => x.GetProperty("domain").GetString() ?? "")
             .Where(x => x.Length > 0)
             .OrderBy(x => x, StringComparer.Ordinal)
             .ToArray();
+        var commands = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var domain in domainElements)
+        {
+            var domainName = domain.GetProperty("domain").GetString();
+            if (string.IsNullOrWhiteSpace(domainName) || !domain.TryGetProperty("commands", out var domainCommands))
+                continue;
+            foreach (var command in domainCommands.EnumerateArray())
+            {
+                var commandName = command.GetProperty("name").GetString();
+                if (!string.IsNullOrWhiteSpace(commandName))
+                    commands.Add($"{domainName}.{commandName}");
+            }
+        }
 
         string? major = null;
         string? minor = null;
@@ -71,7 +88,7 @@ public static class CdpDiscovery
                 minor = minorElement.GetString();
         }
 
-        return new ProtocolSummary(domains.Length, major, minor, domains);
+        return new ProtocolSummary(domains.Length, major, minor, domains, commands);
     }
 
     public static async Task<bool> IsAliveAsync(int port, CancellationToken cancellationToken = default)
