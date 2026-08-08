@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\AgentBrowser.Cdp\AgentBrowser.Cdp.csproj" />
+    <ProjectReference Include="..\AgentBrowser.State\AgentBrowser.State.csproj" />
   </ItemGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
