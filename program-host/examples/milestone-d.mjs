@@ -3,7 +3,7 @@ export default async function milestoneD(browser) {
 
   const opened = await browser.open(`https://example.com/?eyebrowse=milestone-d-${Date.now()}`);
   const target = opened.target.Id;
-  const ready = await browser.wait(target, "document.readyState === 'complete'", 10000, 50);
+const ready = await browser.wait(target, "location.href.includes('eyebrowse=milestone-d-') && document.readyState === 'complete'", 10000, 50);
   if (!ready.matched) throw new Error('Milestone D primary page did not become ready.');
 
   await browser.jsValue(target, `(() => {
