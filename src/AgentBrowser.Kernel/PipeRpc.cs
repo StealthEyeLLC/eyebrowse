@@ -39,6 +39,7 @@ internal sealed class KernelRpcDispatcher(
             "action.key" => await KeyAsync(p, cancellationToken),
             "action.scroll" => await ScrollAsync(p, cancellationToken),
             "js.evaluate" => await state.EvaluateAsync(GetRequiredString(p, "target"), GetRequiredString(p, "expression"), cancellationToken),
+            "wait.until" => await WaitAsync(p, cancellationToken),
             "cdp.send" => await RawCdpAsync(p, cancellationToken),
             _ => throw new InvalidOperationException($"Unknown RPC method '{request.Method}'.")
         };
@@ -87,6 +88,22 @@ internal sealed class KernelRpcDispatcher(
         return new { surface.Cursor, surface.Target, surface.Document };
     }
 
+    private async Task<object> WaitAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var target = GetRequiredString(p, "target");
+        var expression = GetRequiredString(p, "expression");
+        var timeoutMs = (int)(GetOptionalDouble(p, "timeoutMs") ?? 5000);
+        var intervalMs = (int)(GetOptionalDouble(p, "intervalMs") ?? 100);
+        var started = DateTimeOffset.UtcNow;
+        var matched = await state.WaitUntilAsync(target, expression, timeoutMs, intervalMs, cancellationToken);
+        return new
+        {
+            matched,
+            elapsedMs = (long)(DateTimeOffset.UtcNow - started).TotalMilliseconds,
+            target,
+            expression
+        };
+    }
     private async Task<object> ScrollAsync(JsonElement p, CancellationToken cancellationToken)
     {
         var target = GetRequiredString(p, "target");

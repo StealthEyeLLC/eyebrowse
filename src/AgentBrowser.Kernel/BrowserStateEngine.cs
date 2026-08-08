@@ -218,6 +218,43 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         }, state.SessionId, cancellationToken);
     }
 
+    public async Task<bool> WaitUntilAsync(
+        string targetReference,
+        string expression,
+        int timeoutMs = 5000,
+        int intervalMs = 100,
+        CancellationToken cancellationToken = default)
+    {
+        var target = await ResolveTargetAsync(targetReference, cancellationToken);
+        var state = await EnsureTargetStateAsync(target, cancellationToken);
+        timeoutMs = Math.Clamp(timeoutMs, 1, 300_000);
+        intervalMs = Math.Clamp(intervalMs, 25, 10_000);
+
+        var predicateJson = JsonSerializer.Serialize(expression);
+        var source = "new Promise((resolve)=>{" +
+            "const source=" + predicateJson + ";" +
+            "let finished=false,observer=null,interval=null,timeout=null;" +
+            "const cleanup=()=>{if(observer)observer.disconnect();if(interval)clearInterval(interval);if(timeout)clearTimeout(timeout);};" +
+            "const finish=(value)=>{if(finished)return;finished=true;cleanup();resolve(value);};" +
+            "const check=()=>{try{if(Boolean((0,eval)(source)))finish(true);}catch{}};" +
+            "try{observer=new MutationObserver(check);observer.observe(document.documentElement||document,{subtree:true,childList:true,attributes:true,characterData:true});}catch{}" +
+            $"interval=setInterval(check,{intervalMs});" +
+            $"timeout=setTimeout(()=>finish(false),{timeoutMs});" +
+            "check();" +
+            "})";
+
+        var result = await _cdp.SendAsync("Runtime.evaluate", new
+        {
+            expression = source,
+            returnByValue = true,
+            awaitPromise = true,
+            userGesture = false
+        }, state.SessionId, cancellationToken);
+
+        return result.TryGetProperty("result", out var remote) &&
+               remote.TryGetProperty("value", out var value) &&
+               value.ValueKind is JsonValueKind.True;
+    }
     public async Task ScrollAsync(string targetReference, double deltaX, double deltaY, CancellationToken cancellationToken = default)
     {
         var target = await ResolveTargetAsync(targetReference, cancellationToken);
