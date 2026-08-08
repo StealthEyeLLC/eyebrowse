@@ -57,10 +57,10 @@ const ready = await browser.wait(target, "location.href.includes('eyebrowse=mile
     clickedLabels: [...document.querySelectorAll('button')].map(x => x.textContent)
   })`);
 
-  const second = await browser.open('https://github.com/StealthEyeLLC/eyebrowse');
+  const second = await browser.open(`https://example.com/?eyebrowse=milestone-d-secondary-${Date.now()}`);
   const secondTarget = second.target.Id;
-const secondReady = await browser.wait(secondTarget, "location.href === 'https://github.com/StealthEyeLLC/eyebrowse' && document.readyState === 'complete'", 15000, 100);
-  if (!secondReady.matched) throw new Error('GitHub tab did not become ready.');
+  const secondReady = await browser.wait(secondTarget, "location.href.includes('eyebrowse=milestone-d-secondary-') && document.readyState === 'complete'", 10000, 50);
+  if (!secondReady.matched) throw new Error('Secondary tab did not become ready.');
   const secondSummary = await browser.jsValue(secondTarget, `({
     title: document.title,
     url: location.href,
