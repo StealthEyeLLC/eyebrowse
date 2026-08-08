@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AgentBrowser.Cdp/AgentBrowser.Cdp.csproj" />
+    <Project Path="src/AgentBrowser.Kernel/AgentBrowser.Kernel.csproj" />
+  </Folder>
+</Solution>
