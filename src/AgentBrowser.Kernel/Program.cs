@@ -23,6 +23,7 @@ static async Task<int> MainAsync(string[] args)
             "open" => await OpenAsync(args.Skip(1).ToArray()),
             "eval" => await EvalAsync(args.Skip(1).ToArray()),
             "serve" => await ServeAsync(),
+            "call" => await CallAsync(args.Skip(1).ToArray()),
             "raw" => await RawAsync(args.Skip(1).ToArray()),
             _ => Unknown(args[0])
         };
@@ -48,6 +49,7 @@ static async Task<int> StartAsync()
         runtime.BrowserVersion,
         runtime.ProtocolVersion,
         protocolDomains = protocol.DomainCount,
+        apc = protocol.Supports("Page.getAnnotatedPageContent"),
         runtime.LaunchPid
     });
     return 0;
@@ -85,7 +87,8 @@ static async Task<int> ProtocolAsync()
         ok = true,
         version = $"{protocol.Major}.{protocol.Minor}",
         domainCount = protocol.DomainCount,
-        domains = protocol.Domains
+        domains = protocol.Domains,
+        apc = protocol.Supports("Page.getAnnotatedPageContent")
     });
     return 0;
 }
@@ -119,8 +122,7 @@ static async Task<int> OpenAsync(string[] args)
     var runtime = await RequireRuntimeAsync();
     await using var cdp = await ConnectAsync(runtime);
     var result = await cdp.SendAsync("Target.createTarget", new { url = args[0] });
-    var targetId = result.GetProperty("targetId").GetString();
-    PrintJson(new { ok = true, runtime.BrowserId, targetId, url = args[0] });
+    PrintJson(new { ok = true, runtime.BrowserId, targetId = result.GetProperty("targetId").GetString(), url = args[0] });
     return 0;
 }
 
@@ -133,32 +135,19 @@ static async Task<int> EvalAsync(string[] args)
     var expression = string.Join(' ', args.Skip(1));
     var runtime = await RequireRuntimeAsync();
     await using var cdp = await ConnectAsync(runtime);
-
     var attach = await cdp.SendAsync("Target.attachToTarget", new { targetId, flatten = true });
     var sessionId = attach.GetProperty("sessionId").GetString()
         ?? throw new InvalidOperationException("Target.attachToTarget did not return a sessionId.");
-
-    await cdp.SendAsync("Runtime.enable", null, sessionId);
-    var evaluation = await cdp.SendAsync(
-        "Runtime.evaluate",
-        new
-        {
-            expression,
-            returnByValue = true,
-            awaitPromise = true,
-            userGesture = true
-        },
-        sessionId);
-
-    try { await cdp.SendAsync("Target.detachFromTarget", new { sessionId }); } catch { }
-
-    PrintJson(new
+    await cdp.SendAsync("Runtime.enable", sessionId: sessionId);
+    var evaluation = await cdp.SendAsync("Runtime.evaluate", new
     {
-        ok = !evaluation.TryGetProperty("exceptionDetails", out _),
-        runtime.BrowserId,
-        targetId,
-        result = evaluation
-    });
+        expression,
+        returnByValue = true,
+        awaitPromise = true,
+        userGesture = true
+    }, sessionId);
+    try { await cdp.SendAsync("Target.detachFromTarget", new { sessionId }); } catch { }
+    PrintJson(new { ok = !evaluation.TryGetProperty("exceptionDetails", out _), runtime.BrowserId, targetId, result = evaluation });
     return 0;
 }
 
@@ -171,39 +160,47 @@ static async Task<int> RawAsync(string[] args)
     await using var cdp = await ConnectAsync(runtime);
     object? parameters = null;
     JsonDocument? document = null;
-
     if (args.Length >= 2)
     {
         document = JsonDocument.Parse(args[1]);
         parameters = document.RootElement.Clone();
     }
-
     var result = await cdp.SendAsync(args[0], parameters);
     document?.Dispose();
     PrintJson(new { ok = true, method = args[0], result });
     return 0;
 }
 
+static async Task<int> CallAsync(string[] args)
+{
+    if (args.Length < 1)
+        throw new ArgumentException("Usage: call <method> [params-json]");
+
+    JsonElement parameters;
+    if (args.Length >= 2)
+    {
+        using var document = JsonDocument.Parse(args[1]);
+        parameters = document.RootElement.Clone();
+    }
+    else
+    {
+        parameters = JsonSerializer.SerializeToElement(new { });
+    }
+
+    var response = await PipeRpcClient.CallAsync("eyebrowse-dev", args[0], parameters);
+    Console.WriteLine(JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true }));
+    return response.TryGetProperty("ok", out var ok) && ok.GetBoolean() ? 0 : 4;
+}
+
 static async Task<int> ServeAsync()
 {
     var runtime = await BrowserRuntime.StartOrAttachAsync();
     await using var cdp = await ConnectAsync(runtime);
-
-    var eventCount = 0L;
-    cdp.EventReceived += _ =>
-    {
-        Interlocked.Increment(ref eventCount);
-        return Task.CompletedTask;
-    };
-
-    await cdp.SendAsync("Target.setDiscoverTargets", new { discover = true });
-    await cdp.SendAsync("Target.setAutoAttach", new
-    {
-        autoAttach = true,
-        waitForDebuggerOnStart = false,
-        flatten = true
-    });
-
+    var protocol = await CdpDiscovery.GetProtocolSummaryAsync(runtime.Port);
+    await using var state = new BrowserStateEngine(cdp, protocol.Supports("Page.getAnnotatedPageContent"));
+    await state.InitializeAsync();
+    var dispatcher = new KernelRpcDispatcher(runtime, cdp, state);
+    var server = new PipeRpcServer("eyebrowse-dev", dispatcher);
     var version = await cdp.SendAsync("Browser.getVersion");
     await BrowserRuntime.WriteKernelDescriptorAsync(runtime);
 
@@ -211,9 +208,11 @@ static async Task<int> ServeAsync()
     {
         ready = true,
         pid = Environment.ProcessId,
+        pipe = "eyebrowse-dev",
         runtime.BrowserId,
         runtime.Port,
-        product = version.GetProperty("product").GetString()
+        product = version.GetProperty("product").GetString(),
+        apc = protocol.Supports("Page.getAnnotatedPageContent")
     }));
     Console.Out.Flush();
 
@@ -224,21 +223,19 @@ static async Task<int> ServeAsync()
         cts.Cancel();
     };
 
-    while (!cts.IsCancellationRequested && cdp.IsConnected)
+    try
     {
-        try { await Task.Delay(1000, cts.Token); }
-        catch (OperationCanceledException) { }
+        await server.RunAsync(cts.Token);
     }
-
-    PrintJson(new { stopped = true, events = eventCount });
+    catch (OperationCanceledException) when (cts.IsCancellationRequested)
+    {
+    }
     return 0;
 }
 
-static async Task<BrowserRuntimeDescriptor> RequireRuntimeAsync()
-{
-    return await BrowserRuntime.TryReadLiveDescriptorAsync()
+static async Task<BrowserRuntimeDescriptor> RequireRuntimeAsync() =>
+    await BrowserRuntime.TryReadLiveDescriptorAsync()
         ?? throw new InvalidOperationException("No live eyebrowse Chrome runtime. Run 'start' first.");
-}
 
 static async Task<CdpClient> ConnectAsync(BrowserRuntimeDescriptor runtime)
 {
@@ -257,13 +254,7 @@ static int Unknown(string command)
 static void PrintHelp()
 {
     Console.WriteLine("eyebrowse Build 001 kernel");
-    Console.WriteLine("Commands: start | status | protocol | targets | open <url> | eval <targetId> <expression> | raw <method> [params-json] | serve");
+    Console.WriteLine("Commands: start | status | protocol | targets | open <url> | eval <targetId> <expression> | raw <method> [params-json] | call <rpc-method> [params-json] | serve");
 }
 
-static void PrintJson(object value)
-{
-    Console.WriteLine(JsonSerializer.Serialize(value, new JsonSerializerOptions
-    {
-        WriteIndented = true
-    }));
-}
+static void PrintJson(object value) => Console.WriteLine(JsonSerializer.Serialize(value, new JsonSerializerOptions { WriteIndented = true }));
