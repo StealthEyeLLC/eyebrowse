@@ -59,7 +59,7 @@ const ready = await browser.wait(target, "location.href.includes('eyebrowse=mile
 
   const second = await browser.open('https://github.com/StealthEyeLLC/eyebrowse');
   const secondTarget = second.target.Id;
-  const secondReady = await browser.wait(secondTarget, "document.readyState === 'complete'", 15000, 100);
+const secondReady = await browser.wait(secondTarget, "location.href === 'https://github.com/StealthEyeLLC/eyebrowse' && document.readyState === 'complete'", 15000, 100);
   if (!secondReady.matched) throw new Error('GitHub tab did not become ready.');
   const secondSummary = await browser.jsValue(secondTarget, `({
     title: document.title,
