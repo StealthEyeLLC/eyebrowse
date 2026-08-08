@@ -28,6 +28,12 @@ const ready = await browser.wait(target, "location.href.includes('eyebrowse=mile
   if (textboxMatches.length !== 1) throw new Error(`Expected one program textbox, saw ${textboxMatches.length}.`);
   await browser.fill(textboxMatches[0].Id, 'program-host-ran');
 
+  const networkTag = `program-network-${Date.now()}`;
+  const networkPath = `/?eyebrowse=${networkTag}`;
+  const fetchedLength = await browser.jsValue(target, `fetch(${JSON.stringify(networkPath)}).then(r => r.text()).then(text => text.length)`);
+  const networkRequests = await browser.network({ target, contains: networkTag, limit: 5 });
+  if (networkRequests.length < 1) throw new Error('Expected the Program Host fetch in network state.');
+  const networkBody = await browser.networkBody(networkRequests[0].Id);
   const buttons = await browser.query({ target, role: 'button', contains: 'Program item', limit: 20 });
   if (buttons.length !== 12) throw new Error(`Expected 12 program buttons, saw ${buttons.length}.`);
 
@@ -79,6 +85,15 @@ const ready = await browser.wait(target, "location.href.includes('eyebrowse=mile
       deltaCursor: delta.Cursor,
       changedObjects: delta.Changed.length,
       summary: primarySummary
+    },
+    network: {
+      id: networkRequests[0].Id,
+      status: networkRequests[0].Status,
+      mimeType: networkRequests[0].MimeType,
+      completed: networkRequests[0].Completed,
+      fetchedLength,
+      bodyLength: networkBody.Body.length,
+      base64Encoded: networkBody.Base64Encoded
     },
     wait: delayed,
     secondTab: { target: secondTarget, ...secondSummary },

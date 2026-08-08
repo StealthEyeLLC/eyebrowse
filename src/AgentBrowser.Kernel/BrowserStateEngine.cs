@@ -19,6 +19,8 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
     private readonly DocumentIdentityBridge _identity;
     private readonly LogicalIdStore _ids = new();
     private readonly ConcurrentDictionary<string, TargetState> _targets = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, TargetState> _sessions = new(StringComparer.Ordinal);
+    private long _nextRequestId;
     private long _cursor;
 
     public BrowserStateEngine(CdpClient cdp, bool apcAvailable)
@@ -26,6 +28,7 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         _cdp = cdp;
         _apcAvailable = apcAvailable;
         _identity = new DocumentIdentityBridge(cdp);
+        _cdp.EventReceived += OnCdpEventAsync;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
@@ -218,6 +221,55 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         }, state.SessionId, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<NetworkRequestSummary>> NetworkSearchAsync(
+        string targetReference,
+        string? contains = null,
+        string? method = null,
+        int? status = null,
+        int limit = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var target = await ResolveTargetAsync(targetReference, cancellationToken);
+        var state = await EnsureTargetStateAsync(target, cancellationToken);
+        IEnumerable<NetworkEntry> entries = state.NetworkByLogicalId.Values;
+
+        if (!string.IsNullOrWhiteSpace(contains))
+            entries = entries.Where(x => x.Url.Contains(contains, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(method))
+            entries = entries.Where(x => string.Equals(x.Method, method, StringComparison.OrdinalIgnoreCase));
+        if (status is not null)
+            entries = entries.Where(x => x.Status == status);
+
+        return entries
+            .OrderByDescending(x => x.StartedAtUtc)
+            .Take(Math.Clamp(limit, 1, 500))
+            .Select(x => NetworkSnapshot(state, x))
+            .ToArray();
+    }
+
+    public async Task<NetworkBody> NetworkBodyAsync(
+        string logicalRequestId,
+        CancellationToken cancellationToken = default)
+    {
+        foreach (var state in _targets.Values)
+        {
+            if (!state.NetworkByLogicalId.TryGetValue(logicalRequestId, out var entry))
+                continue;
+
+            var result = await _cdp.SendAsync(
+                "Network.getResponseBody",
+                new { requestId = entry.RawRequestId },
+                state.SessionId,
+                cancellationToken);
+            return new NetworkBody(
+                entry.Id,
+                entry.RawRequestId,
+                result.TryGetProperty("body", out var body) ? body.GetString() ?? "" : "",
+                result.TryGetProperty("base64Encoded", out var encoded) && encoded.GetBoolean());
+        }
+
+        throw new KeyNotFoundException($"Unknown network request '{logicalRequestId}'.");
+    }
     public async Task<bool> WaitUntilAsync(
         string targetReference,
         string expression,
@@ -451,10 +503,12 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
             return state;
         }
 
+        _sessions[sessionId] = state;
         _identity.TrackSession(sessionId);
         await _cdp.SendAsync("Page.enable", sessionId: sessionId, cancellationToken: cancellationToken);
         await _cdp.SendAsync("Runtime.enable", sessionId: sessionId, cancellationToken: cancellationToken);
         await _cdp.SendAsync("DOM.enable", sessionId: sessionId, cancellationToken: cancellationToken);
+        await _cdp.SendAsync("Network.enable", sessionId: sessionId, cancellationToken: cancellationToken);
         await _cdp.SendAsync("Accessibility.enable", sessionId: sessionId, cancellationToken: cancellationToken);
         return state;
     }
@@ -469,6 +523,111 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         throw new KeyNotFoundException($"Unknown semantic element '{elementId}'. Observe the target first.");
     }
 
+    private Task OnCdpEventAsync(JsonElement message)
+    {
+        if (!message.TryGetProperty("sessionId", out var sessionElement) || sessionElement.ValueKind != JsonValueKind.String)
+            return Task.CompletedTask;
+        var sessionId = sessionElement.GetString();
+        if (string.IsNullOrWhiteSpace(sessionId) || !_sessions.TryGetValue(sessionId, out var state))
+            return Task.CompletedTask;
+        if (!message.TryGetProperty("method", out var methodElement) || methodElement.ValueKind != JsonValueKind.String)
+            return Task.CompletedTask;
+        if (!message.TryGetProperty("params", out var p) || p.ValueKind != JsonValueKind.Object)
+            return Task.CompletedTask;
+
+        var method = methodElement.GetString();
+        try
+        {
+            if (method == "Network.requestWillBeSent")
+            {
+                var rawRequestId = GetString(p, "requestId");
+                if (rawRequestId.Length == 0 || !p.TryGetProperty("request", out var request))
+                    return Task.CompletedTask;
+                var entry = GetOrCreateNetworkEntry(state, rawRequestId);
+                entry.Url = GetString(request, "url");
+                entry.Method = GetString(request, "method");
+                entry.ResourceType = GetString(p, "type");
+                entry.FrameId = GetString(p, "frameId");
+                entry.LoaderId = GetString(p, "loaderId");
+                if (p.TryGetProperty("initiator", out var initiator))
+                    entry.InitiatorType = NullIfEmpty(GetString(initiator, "type"));
+            }
+            else if (method == "Network.responseReceived")
+            {
+                var rawRequestId = GetString(p, "requestId");
+                if (rawRequestId.Length == 0 || !p.TryGetProperty("response", out var response))
+                    return Task.CompletedTask;
+                var entry = GetOrCreateNetworkEntry(state, rawRequestId);
+                if (response.TryGetProperty("status", out var statusValue) && statusValue.TryGetDouble(out var status))
+                    entry.Status = (int)status;
+                entry.MimeType = NullIfEmpty(GetString(response, "mimeType"));
+                if (entry.Url.Length == 0)
+                    entry.Url = GetString(response, "url");
+                if (entry.ResourceType.Length == 0)
+                    entry.ResourceType = GetString(p, "type");
+            }
+            else if (method == "Network.loadingFinished")
+            {
+                var rawRequestId = GetString(p, "requestId");
+                if (rawRequestId.Length == 0) return Task.CompletedTask;
+                var entry = GetOrCreateNetworkEntry(state, rawRequestId);
+                entry.Completed = true;
+                entry.FinishedAtUtc = DateTimeOffset.UtcNow;
+                if (p.TryGetProperty("encodedDataLength", out var length) && length.TryGetDouble(out var bytes))
+                    entry.EncodedDataLength = (long)bytes;
+            }
+            else if (method == "Network.loadingFailed")
+            {
+                var rawRequestId = GetString(p, "requestId");
+                if (rawRequestId.Length == 0) return Task.CompletedTask;
+                var entry = GetOrCreateNetworkEntry(state, rawRequestId);
+                entry.Failed = true;
+                entry.FinishedAtUtc = DateTimeOffset.UtcNow;
+                entry.ErrorText = NullIfEmpty(GetString(p, "errorText"));
+            }
+        }
+        catch
+        {
+            // Network observation is best-effort state normalization; malformed/unknown events do not stop the CDP receive loop.
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private NetworkEntry GetOrCreateNetworkEntry(TargetState state, string rawRequestId)
+    {
+        return state.NetworkByRawId.GetOrAdd(rawRequestId, id =>
+        {
+            var created = new NetworkEntry($"req_{Interlocked.Increment(ref _nextRequestId)}", id, DateTimeOffset.UtcNow);
+            state.NetworkByLogicalId[created.Id] = created;
+            while (state.NetworkByLogicalId.Count > 1000)
+            {
+                var oldest = state.NetworkByLogicalId.Values.OrderBy(x => x.StartedAtUtc).FirstOrDefault();
+                if (oldest is null) break;
+                state.NetworkByLogicalId.TryRemove(oldest.Id, out _);
+                state.NetworkByRawId.TryRemove(oldest.RawRequestId, out _);
+            }
+            return created;
+        });
+    }
+
+    private static NetworkRequestSummary NetworkSnapshot(TargetState state, NetworkEntry entry) => new(
+        entry.Id,
+        state.LogicalId,
+        string.IsNullOrWhiteSpace(state.DocumentLogicalId) ? null : state.DocumentLogicalId,
+        entry.RawRequestId,
+        entry.Url,
+        entry.Method,
+        entry.ResourceType,
+        entry.InitiatorType,
+        entry.Status,
+        entry.MimeType,
+        entry.Completed,
+        entry.Failed,
+        entry.ErrorText,
+        entry.EncodedDataLength,
+        entry.StartedAtUtc,
+        entry.FinishedAtUtc);
     private static string AxValue(JsonElement node, string property)
     {
         if (!node.TryGetProperty(property, out var value) || value.ValueKind != JsonValueKind.Object)
@@ -548,6 +707,7 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
             try { await _cdp.SendAsync("Target.detachFromTarget", new { sessionId = state.SessionId }); } catch { }
             state.Gate.Dispose();
         }
+        _cdp.EventReceived -= OnCdpEventAsync;
         _identity.Dispose();
     }
 
@@ -562,6 +722,28 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         public ConcurrentDictionary<int, string> BackendToLogicalId { get; } = new();
         public ConcurrentDictionary<string, SemanticElement> ElementsByLogicalId { get; } = new(StringComparer.Ordinal);
         public ConcurrentDictionary<long, SemanticSurface> History { get; } = new();
+        public ConcurrentDictionary<string, NetworkEntry> NetworkByRawId { get; } = new(StringComparer.Ordinal);
+        public ConcurrentDictionary<string, NetworkEntry> NetworkByLogicalId { get; } = new(StringComparer.Ordinal);
+    }
+
+    private sealed class NetworkEntry(string id, string rawRequestId, DateTimeOffset startedAtUtc)
+    {
+        public string Id { get; } = id;
+        public string RawRequestId { get; } = rawRequestId;
+        public DateTimeOffset StartedAtUtc { get; } = startedAtUtc;
+        public string Url { get; set; } = "";
+        public string Method { get; set; } = "";
+        public string ResourceType { get; set; } = "";
+        public string FrameId { get; set; } = "";
+        public string LoaderId { get; set; } = "";
+        public string? InitiatorType { get; set; }
+        public int? Status { get; set; }
+        public string? MimeType { get; set; }
+        public bool Completed { get; set; }
+        public bool Failed { get; set; }
+        public string? ErrorText { get; set; }
+        public long? EncodedDataLength { get; set; }
+        public DateTimeOffset? FinishedAtUtc { get; set; }
     }
 }
 

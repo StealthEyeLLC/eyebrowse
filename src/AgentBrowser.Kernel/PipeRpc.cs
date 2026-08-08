@@ -40,6 +40,8 @@ internal sealed class KernelRpcDispatcher(
             "action.scroll" => await ScrollAsync(p, cancellationToken),
             "js.evaluate" => await state.EvaluateAsync(GetRequiredString(p, "target"), GetRequiredString(p, "expression"), cancellationToken),
             "wait.until" => await WaitAsync(p, cancellationToken),
+            "network.search" => await NetworkSearchAsync(p, cancellationToken),
+            "network.body" => await state.NetworkBodyAsync(GetRequiredString(p, "id"), cancellationToken),
             "cdp.send" => await RawCdpAsync(p, cancellationToken),
             _ => throw new InvalidOperationException($"Unknown RPC method '{request.Method}'.")
         };
@@ -88,6 +90,15 @@ internal sealed class KernelRpcDispatcher(
         return new { surface.Cursor, surface.Target, surface.Document };
     }
 
+    private async Task<object> NetworkSearchAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var target = GetRequiredString(p, "target");
+        var contains = GetOptionalString(p, "contains");
+        var method = GetOptionalString(p, "method");
+        int? status = p.TryGetProperty("status", out var statusValue) && statusValue.TryGetInt32(out var statusInt) ? statusInt : null;
+        var limit = p.TryGetProperty("limit", out var limitValue) && limitValue.TryGetInt32(out var limitInt) ? limitInt : 50;
+        return await state.NetworkSearchAsync(target, contains, method, status, limit, cancellationToken);
+    }
     private async Task<object> WaitAsync(JsonElement p, CancellationToken cancellationToken)
     {
         var target = GetRequiredString(p, "target");

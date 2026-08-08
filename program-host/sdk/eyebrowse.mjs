@@ -58,6 +58,8 @@ export class EyeBrowse {
   wait(target, expression, timeoutMs = 5000, intervalMs = 100) {
     return this.call('wait.until', { target, expression, timeoutMs, intervalMs });
   }
+  network(query) { return this.call('network.search', query); }
+  networkBody(id) { return this.call('network.body', { id }); }
   cdp(method, params = {}) { return this.call('cdp.send', { method, params }); }
 
   async jsValue(target, expression) {
