@@ -30,6 +30,8 @@ The numbered documents in `docs/` are the canonical project specification in rea
 - [`04-ROADMAP.md`](docs/04-ROADMAP.md) — development sequence after the first slice.
 - [`05-RESEARCH-BASELINE.md`](docs/05-RESEARCH-BASELINE.md) — state-of-the-art findings that materially influence the architecture.
 - [`06-DECISIONS.md`](docs/06-DECISIONS.md) — frozen architectural decisions and intentionally deferred choices.
+- [`07-CAPABILITY-MATRIX.md`](docs/07-CAPABILITY-MATRIX.md) — intended final capability surface classified as core/advanced/fallback/experimental/unnecessary.
+- [`08-WORKFLOW-PRESSURE-TESTS.md`](docs/08-WORKFLOW-PRESSURE-TESTS.md) — real workflows used to pressure-test whether the architecture is genuinely agent-native.
 - [`AUTHORITY.md`](docs/AUTHORITY.md) — repository/project operating authority.
 
 If implementation reveals a canonical architectural assumption to be wrong, update the relevant canonical document rather than allowing a contradictory second specification to grow alongside it.
