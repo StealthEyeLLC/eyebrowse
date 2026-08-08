@@ -198,15 +198,17 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         var target = await ResolveTargetAsync(targetReference, cancellationToken);
         var state = await EnsureTargetStateAsync(target, cancellationToken);
         var (code, vk, text) = KeyMetadata(key);
-        await _cdp.SendAsync("Input.dispatchKeyEvent", new
+        var keyDown = new Dictionary<string, object?>
         {
-            type = "keyDown",
-            key,
-            code,
-            windowsVirtualKeyCode = vk,
-            nativeVirtualKeyCode = vk,
-            text
-        }, state.SessionId, cancellationToken);
+            ["type"] = "keyDown",
+            ["key"] = key,
+            ["code"] = code,
+            ["windowsVirtualKeyCode"] = vk,
+            ["nativeVirtualKeyCode"] = vk
+        };
+        if (text is not null)
+            keyDown["text"] = text;
+        await _cdp.SendAsync("Input.dispatchKeyEvent", keyDown, state.SessionId, cancellationToken);
         await _cdp.SendAsync("Input.dispatchKeyEvent", new
         {
             type = "keyUp",
@@ -483,3 +485,4 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         public ConcurrentDictionary<long, SemanticSurface> History { get; } = new();
     }
 }
+
