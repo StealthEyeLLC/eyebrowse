@@ -491,3 +491,96 @@ current eyebrowse runtime descriptors
 ```
 
 This is environment discovery, not an audit/receipt system.
+
+## 16. Build 001 runtime additions — current state after implementation
+
+This section is newer than the pre-build inventory above and supersedes earlier statements that Node was absent and that no eyebrowse Chrome profile existed.
+
+### Portable Node runtime now present
+
+```text
+Node: v24.18.1
+npm:  11.16.0
+path: C:\AgentBrowser\tools\node-v24.18.1-win-x64\
+```
+
+The runtime is deliberately portable and is not added to machine-global PATH. Program Host commands invoke the exact executable path.
+
+### Dedicated eyebrowse Chrome profile now present
+
+```text
+C:\AgentBrowser\Profiles\dev
+```
+
+Current measured Build 001 browser runtime:
+
+```text
+Chrome:            151.0.7922.109
+CDP protocol:      1.3
+current CDP port:  62510
+browser WebSocket: ws://127.0.0.1:62510/devtools/browser/2d77d454-bced-4760-982c-33ebbc033dc3
+Chrome launch PID: 25324
+```
+
+The port/PID/GUID are runtime observations, not hard-coded architectural constants.
+
+### Persistent kernel topology now present
+
+Windows scheduled task:
+
+```text
+eyebrowse-kernel-dev
+```
+
+It launches:
+
+```text
+C:\Program Files\dotnet\dotnet.exe
+X:\AgentBrowser\repo\src\AgentBrowser.Kernel\bin\Release\net10.0\AgentBrowser.Kernel.dll serve
+```
+
+The scheduled task runs in the logged-in `STEALTHEYELLC\StealthEye` interactive user session. Last Build 001 acceptance kernel PID was 24616.
+
+Local client IPC:
+
+```text
+\\.\pipe\eyebrowse-dev
+```
+
+### Current operating-state files
+
+```text
+C:\AgentBrowser\runtime\dev.json
+C:\AgentBrowser\runtime\kernel-dev.json
+C:\AgentBrowser\runtime\logical-ids-dev.json
+```
+
+These are current operating state only. They do not contain a permanent browser-action ledger.
+
+### Current data roots
+
+```text
+X:\AgentBrowser\repo
+X:\AgentBrowser\Artifacts
+X:\AgentBrowser\Temp
+```
+
+### MV3 bridge
+
+The unpacked Build 001 bridge is sourced from:
+
+```text
+X:\AgentBrowser\repo\extension\agent-bridge
+```
+
+During acceptance Chrome assigned extension ID:
+
+```text
+afabbpdkohgmlnfmfgdffghfcfiladeg
+```
+
+The kernel intentionally does not hard-code that ID. It discovers the bridge execution world by capability/probe semantics.
+
+### Build 001 current status
+
+All four formal Build 001 milestones passed on this machine. See `09-BUILD-001-RESULTS.md` for exact acceptance evidence and the current implementation boundary.

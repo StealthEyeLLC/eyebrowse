@@ -10,6 +10,8 @@ The canonical target is:
 
 ## Build 1 is the four-milestone slice
 
+**Status: COMPLETE — all four Build 001 acceptance gates passed on STEALTHEYELLC on 2026-08-08.** See [`docs/09-BUILD-001-RESULTS.md`](docs/09-BUILD-001-RESULTS.md) for measured implementation results and current boundaries.
+
 The **first implementation build is Build 001: Browser Kernel Slice**. It is not a throwaway prototype. It establishes the permanent architectural spine and has four milestone outcomes:
 
 1. **Milestone A — Persistent browser:** Chrome runs independently of the eyebrowse kernel and remains alive when the kernel exits.
@@ -32,6 +34,7 @@ The numbered documents in `docs/` are the canonical project specification in rea
 - [`06-DECISIONS.md`](docs/06-DECISIONS.md) — frozen architectural decisions and intentionally deferred choices.
 - [`07-CAPABILITY-MATRIX.md`](docs/07-CAPABILITY-MATRIX.md) — intended final capability surface classified as core/advanced/fallback/experimental/unnecessary.
 - [`08-WORKFLOW-PRESSURE-TESTS.md`](docs/08-WORKFLOW-PRESSURE-TESTS.md) — real workflows used to pressure-test whether the architecture is genuinely agent-native.
+- [`09-BUILD-001-RESULTS.md`](docs/09-BUILD-001-RESULTS.md) — measured implementation/acceptance results, live topology, defects fixed, and explicit remaining boundaries.
 - [`AUTHORITY.md`](docs/AUTHORITY.md) — repository/project operating authority.
 
 If implementation reveals a canonical architectural assumption to be wrong, update the relevant canonical document rather than allowing a contradictory second specification to grow alongside it.

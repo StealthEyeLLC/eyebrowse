@@ -1,7 +1,9 @@
 # 02 — Build 001: Browser Kernel Slice
 
-Status: **Canonical first build**  
-Priority: **P0 / implement before secondary architecture**
+Status: **COMPLETE — four-milestone acceptance passed 2026-08-08**
+Priority: **P0 / implemented before secondary architecture**
+
+Implementation evidence: [`09-BUILD-001-RESULTS.md`](09-BUILD-001-RESULTS.md). Broader workstream items not required by the four formal completion gates are explicitly listed there as post-gate boundaries rather than silently claimed complete.
 
 ## 1. Purpose
 

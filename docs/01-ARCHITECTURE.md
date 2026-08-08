@@ -1199,3 +1199,17 @@ Chrome has crossed into an OS dialog — continue through native UI Automation
 ```
 
 The architecture is successful when thousands of browser observations/actions do not require thousands of reasoning-model turns and when the agent can maintain a coherent working model of the web for hours.
+
+## Build 001 discoveries promoted to canonical architecture
+
+The first four-milestone slice converted several assumptions into measured design facts:
+
+1. **Exact identity recovery through the extension isolated execution world is proven.** The kernel can discover the MV3 content-script world through CDP Runtime contexts and resolve DOM nodes directly into it. The service worker is therefore not required as the exact-identity state authority.
+2. **Extension-to-kernel streaming is optional for recovery.** A future WebSocket/native-message bridge may still be useful for high-rate proactive event streaming, but controller-death recovery must continue to work through surviving document-resident state plus direct CDP.
+3. **Target mappings and ID allocation are durable current operating state.** This prevents identity collision/relabeling after kernel restart without storing browser action history.
+4. **Browser waits are target/document-lifecycle operations.** An in-flight JavaScript context may disappear during navigation; waits must tolerate context destruction and continue against the committed replacement document under one original deadline.
+5. **Program Host remains subordinate to the kernel.** The successful Node host uses one local named-pipe SDK and does not establish a competing canonical CDP control plane.
+6. **Bounded Network state is part of the state engine.** Request metadata is kept transiently per hot target while response bodies are fetched lazily on demand. This pattern should extend to GraphQL/WebSocket/SSE rather than archiving all traffic by default.
+7. **Named pipes are a proven Windows-local client transport.** The client transport is replaceable; it does not alter the browser-control decision that direct dynamic CDP is canonical.
+
+Measured evidence and implementation boundaries are in `09-BUILD-001-RESULTS.md`.
