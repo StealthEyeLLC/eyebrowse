@@ -1,0 +1,881 @@
+{
+    "ok":  true,
+    "runAtUtc":  "2026-08-12T13:17:44.1338195+00:00",
+    "evidenceRoot":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements",
+    "gateCount":  7,
+    "passed":  7,
+    "failed":  0,
+    "gates":  [
+                  {
+                      "gate":  "G1",
+                      "pass":  true,
+                      "details":  {
+                                      "pass":  true,
+                                      "checks":  [
+                                                     {
+                                                         "name":  "evidence-ok",
+                                                         "pass":  true,
+                                                         "observed":  true,
+                                                         "expected":  true
+                                                     },
+                                                     {
+                                                         "name":  "repository",
+                                                         "pass":  true,
+                                                         "observed":  "StealthEyeLLC/eyebrowse",
+                                                         "expected":  "StealthEyeLLC/eyebrowse"
+                                                     },
+                                                     {
+                                                         "name":  "default-ref",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "defaultBranch":  "main",
+                                                                          "ref":  "main"
+                                                                      },
+                                                         "expected":  "main"
+                                                     },
+                                                     {
+                                                         "name":  "git-materialized",
+                                                         "pass":  true,
+                                                         "observed":  "X:\\SkillPlaneTest\\g1-eyebrowse",
+                                                         "expected":  ".git exists"
+                                                     },
+                                                     {
+                                                         "name":  "remote-exact",
+                                                         "pass":  true,
+                                                         "observed":  "https://github.com/StealthEyeLLC/eyebrowse.git",
+                                                         "expected":  "https://github.com/StealthEyeLLC/eyebrowse.git"
+                                                     },
+                                                     {
+                                                         "name":  "branch-exact",
+                                                         "pass":  true,
+                                                         "observed":  "main",
+                                                         "expected":  "main"
+                                                     },
+                                                     {
+                                                         "name":  "head-stable",
+                                                         "pass":  true,
+                                                         "observed":  "2e27f44ebd3522d0d26b036dc57f790535df3533",
+                                                         "expected":  "2e27f44ebd3522d0d26b036dc57f790535df3533"
+                                                     },
+                                                     {
+                                                         "name":  "worktree-clean",
+                                                         "pass":  true,
+                                                         "observed":  "",
+                                                         "expected":  "clean"
+                                                     }
+                                                 ],
+                                      "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g1-evidence.json"
+                                  }
+                  },
+                  {
+                      "gate":  "G2",
+                      "pass":  true,
+                      "details":  {
+                                      "pass":  true,
+                                      "checks":  [
+                                                     {
+                                                         "name":  "evidence-ok",
+                                                         "pass":  true,
+                                                         "observed":  true,
+                                                         "expected":  true
+                                                     },
+                                                     {
+                                                         "name":  "eight-cases",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "cases":  8,
+                                                                          "passed":  8
+                                                                      },
+                                                         "expected":  "8/8"
+                                                     },
+                                                     {
+                                                         "name":  "one-repository",
+                                                         "pass":  true,
+                                                         "observed":  [
+                                                                          "cli/cli"
+                                                                      ],
+                                                         "expected":  [
+                                                                          "cli/cli"
+                                                                      ]
+                                                     },
+                                                     {
+                                                         "name":  "one-repository-id",
+                                                         "pass":  true,
+                                                         "observed":  [
+                                                                          "212613049"
+                                                                      ],
+                                                         "expected":  [
+                                                                          "212613049"
+                                                                      ]
+                                                     },
+                                                     {
+                                                         "name":  "repository",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "repository",
+                                                                          "url":  "https://github.com/cli/cli",
+                                                                          "target":  "t_152",
+                                                                          "pass":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "repositoryId":  "212613049",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "repository",
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "commit":  null,
+                                                                          "workflowRun":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route+github-rest",
+                                                                          "kernelOperations":  3,
+                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2r-repository.json"
+                                                                      },
+                                                         "expected":  {
+                                                                          "routeFamily":  "repository",
+                                                                          "defaultBranch":  "trunk"
+                                                                      }
+                                                     },
+                                                     {
+                                                         "name":  "readme-blob",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "readme-blob",
+                                                                          "url":  "https://github.com/cli/cli/blob/trunk/README.md",
+                                                                          "target":  "t_153",
+                                                                          "pass":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "repositoryId":  "212613049",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "blob",
+                                                                          "ref":  "trunk",
+                                                                          "path":  "README.md",
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "commit":  null,
+                                                                          "workflowRun":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route+github-rest",
+                                                                          "kernelOperations":  3,
+                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2r-readme-blob.json"
+                                                                      },
+                                                         "expected":  {
+                                                                          "routeFamily":  "blob",
+                                                                          "ref":  "trunk",
+                                                                          "path":  "README.md"
+                                                                      }
+                                                     },
+                                                     {
+                                                         "name":  "architecture-blob",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "architecture-blob",
+                                                                          "url":  "https://github.com/cli/cli/blob/trunk/docs/project-layout.md",
+                                                                          "target":  "t_154",
+                                                                          "pass":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "repositoryId":  "212613049",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "blob",
+                                                                          "ref":  "trunk",
+                                                                          "path":  "docs/project-layout.md",
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "commit":  null,
+                                                                          "workflowRun":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route+github-rest",
+                                                                          "kernelOperations":  3,
+                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2r-architecture-blob.json"
+                                                                      },
+                                                         "expected":  {
+                                                                          "routeFamily":  "blob",
+                                                                          "ref":  "trunk",
+                                                                          "path":  "docs/project-layout.md"
+                                                                      }
+                                                     },
+                                                     {
+                                                         "name":  "docs-tree",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "docs-tree",
+                                                                          "url":  "https://github.com/cli/cli/tree/trunk/docs",
+                                                                          "target":  "t_155",
+                                                                          "pass":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "repositoryId":  "212613049",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "tree",
+                                                                          "ref":  "trunk",
+                                                                          "path":  "docs",
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "commit":  null,
+                                                                          "workflowRun":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route+github-rest",
+                                                                          "kernelOperations":  3,
+                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2r-docs-tree.json"
+                                                                      },
+                                                         "expected":  {
+                                                                          "routeFamily":  "tree",
+                                                                          "ref":  "trunk",
+                                                                          "path":  "docs"
+                                                                      }
+                                                     },
+                                                     {
+                                                         "name":  "issue",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "issue",
+                                                                          "url":  "https://github.com/cli/cli/issues/14134",
+                                                                          "target":  "t_156",
+                                                                          "pass":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "repositoryId":  "212613049",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "issues",
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  14134,
+                                                                          "pullRequest":  null,
+                                                                          "commit":  null,
+                                                                          "workflowRun":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route+github-rest",
+                                                                          "kernelOperations":  3,
+                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2r-issue.json"
+                                                                      },
+                                                         "expected":  {
+                                                                          "routeFamily":  "issues",
+                                                                          "issue":  "14134"
+                                                                      }
+                                                     },
+                                                     {
+                                                         "name":  "pull",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "pull",
+                                                                          "url":  "https://github.com/cli/cli/pull/14006",
+                                                                          "target":  "t_157",
+                                                                          "pass":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "repositoryId":  "212613049",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "pull",
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  null,
+                                                                          "pullRequest":  14006,
+                                                                          "commit":  null,
+                                                                          "workflowRun":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route+github-rest",
+                                                                          "kernelOperations":  3,
+                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2r-pull.json"
+                                                                      },
+                                                         "expected":  {
+                                                                          "routeFamily":  "pull",
+                                                                          "pullRequest":  "14006"
+                                                                      }
+                                                     },
+                                                     {
+                                                         "name":  "commit",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "commit",
+                                                                          "url":  "https://github.com/cli/cli/commit/c7456733f5ecfee07250b282e14d12da246d95fd",
+                                                                          "target":  "t_158",
+                                                                          "pass":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "repositoryId":  "212613049",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "commit",
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "commit":  "c7456733f5ecfee07250b282e14d12da246d95fd",
+                                                                          "workflowRun":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route+github-rest",
+                                                                          "kernelOperations":  3,
+                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2r-commit.json"
+                                                                      },
+                                                         "expected":  {
+                                                                          "routeFamily":  "commit",
+                                                                          "commit":  "c7456733f5ecfee07250b282e14d12da246d95fd"
+                                                                      }
+                                                     },
+                                                     {
+                                                         "name":  "actions",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "actions",
+                                                                          "url":  "https://github.com/cli/cli/actions/runs/31587681547",
+                                                                          "target":  "t_159",
+                                                                          "pass":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "repositoryId":  "212613049",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "actions",
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "commit":  null,
+                                                                          "workflowRun":  31587681547,
+                                                                          "evidenceSource":  "github-meta+browser-route+github-rest",
+                                                                          "kernelOperations":  3,
+                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2r-actions.json"
+                                                                      },
+                                                         "expected":  {
+                                                                          "routeFamily":  "actions",
+                                                                          "workflowRun":  "31587681547"
+                                                                      }
+                                                     }
+                                                 ],
+                                      "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g2-evidence.json"
+                                  }
+                  },
+                  {
+                      "gate":  "G3",
+                      "pass":  true,
+                      "details":  {
+                                      "pass":  true,
+                                      "checks":  [
+                                                     {
+                                                         "name":  "evidence-ok",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "ok":  true,
+                                                                          "identical":  true
+                                                                      },
+                                                         "expected":  true
+                                                     },
+                                                     {
+                                                         "name":  "identity",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "repository":  "cli/cli",
+                                                                          "ref":  "trunk",
+                                                                          "path":  "docs/project-layout.md"
+                                                                      },
+                                                         "expected":  "cli/cli trunk docs/project-layout.md"
+                                                     },
+                                                     {
+                                                         "name":  "destination-exists",
+                                                         "pass":  true,
+                                                         "observed":  "X:\\SkillPlaneTest\\current.md",
+                                                         "expected":  "exists"
+                                                     },
+                                                     {
+                                                         "name":  "authoritative-exists",
+                                                         "pass":  true,
+                                                         "observed":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g3-authoritative-raw.md",
+                                                         "expected":  "exists"
+                                                     },
+                                                     {
+                                                         "name":  "hash-exact",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "local":  "E4B3D67E9688A3967AF929669277DAC9B02277835157A58A272B9E8EBF46B20A",
+                                                                          "raw":  "E4B3D67E9688A3967AF929669277DAC9B02277835157A58A272B9E8EBF46B20A",
+                                                                          "evidence":  "E4B3D67E9688A3967AF929669277DAC9B02277835157A58A272B9E8EBF46B20A"
+                                                                      },
+                                                         "expected":  "E4B3D67E9688A3967AF929669277DAC9B02277835157A58A272B9E8EBF46B20A"
+                                                     },
+                                                     {
+                                                         "name":  "bytes-exact",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "local":  5373,
+                                                                          "raw":  5373,
+                                                                          "evidence":  5373
+                                                                      },
+                                                         "expected":  5373
+                                                     }
+                                                 ],
+                                      "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g3-evidence.json"
+                                  }
+                  },
+                  {
+                      "gate":  "G4",
+                      "pass":  true,
+                      "details":  {
+                                      "pass":  true,
+                                      "checks":  [
+                                                     {
+                                                         "name":  "program-ok",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "program":  true,
+                                                                          "result":  true
+                                                                      },
+                                                         "expected":  true
+                                                     },
+                                                     {
+                                                         "name":  "pr-identity",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "repository":  "cli/cli",
+                                                                          "pullRequest":  14006
+                                                                      },
+                                                         "expected":  "cli/cli#14006"
+                                                     },
+                                                     {
+                                                         "name":  "structured-core",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "title":  "Add --search-type flag for semantic and hybrid issue search",
+                                                                          "author":  "michaeljacholke",
+                                                                          "base":  {
+                                                                                       "ref":  "trunk",
+                                                                                       "sha":  "89f3699581659f514c4276bef0820d8caadbb67d",
+                                                                                       "label":  "cli:trunk"
+                                                                                   },
+                                                                          "head":  {
+                                                                                       "ref":  "mj/semantic-search-issues",
+                                                                                       "sha":  "2bc87a139a1c3f98a1c42273f6063a43190e45cc",
+                                                                                       "label":  "michaeljacholke:mj/semantic-search-issues",
+                                                                                       "repository":  "michaeljacholke/cli"
+                                                                                   }
+                                                                      },
+                                                         "expected":  "nonempty"
+                                                     },
+                                                     {
+                                                         "name":  "changed-files-exact",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "provider":  8,
+                                                                          "reported":  8
+                                                                      },
+                                                         "expected":  "equal \u003e 0"
+                                                     },
+                                                     {
+                                                         "name":  "structured-review-checks",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "reviewComments":  8,
+                                                                          "reviews":  1,
+                                                                          "checks":  24,
+                                                                          "annotations":  0
+                                                                      },
+                                                         "expected":  "reviews/checks present; annotations may be empty"
+                                                     },
+                                                     {
+                                                         "name":  "provider-statuses",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "pullRequestStatus":  200,
+                                                                          "filesStatus":  200,
+                                                                          "issueCommentsStatus":  200,
+                                                                          "reviewCommentsStatus":  200,
+                                                                          "reviewsStatus":  200,
+                                                                          "checksStatus":  200,
+                                                                          "statusStatus":  200,
+                                                                          "rateRemaining":  "58"
+                                                                      },
+                                                         "expected":  "all core provider resources HTTP 200"
+                                                     },
+                                                     {
+                                                         "name":  "visual-observation",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "target":  "t_157",
+                                                                          "document":  "d_67",
+                                                                          "semanticObjects":  117
+                                                                      },
+                                                         "expected":  "browser-rendered PR observed"
+                                                     },
+                                                     {
+                                                         "name":  "visual-artifact",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "path":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g4-pr-page.png",
+                                                                          "size":  533823
+                                                                      },
+                                                         "expected":  "nonempty screenshot"
+                                                     }
+                                                 ],
+                                      "artifacts":  [
+                                                        "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g4-pr.json",
+                                                        "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g4-visual-evidence.json"
+                                                    ]
+                                  }
+                  },
+                  {
+                      "gate":  "G5",
+                      "pass":  true,
+                      "details":  {
+                                      "pass":  true,
+                                      "checks":  [
+                                                     {
+                                                         "name":  "program-ok",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "program":  true,
+                                                                          "result":  true
+                                                                      },
+                                                         "expected":  true
+                                                     },
+                                                     {
+                                                         "name":  "run-identity",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "repository":  "cli/cli",
+                                                                          "run":  30928568021
+                                                                      },
+                                                         "expected":  "cli/cli run 30928568021"
+                                                     },
+                                                     {
+                                                         "name":  "failed-jobs-steps",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "jobs":  3,
+                                                                          "steps":  3
+                                                                      },
+                                                         "expected":  "3 failed jobs, \u003e=3 failed steps"
+                                                     },
+                                                     {
+                                                         "name":  "workflow-source",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "workflowPath":  ".github/workflows/go.yml",
+                                                                          "workflowRef":  "ac5977adf8639052068ba72be6e5defa7f314b85",
+                                                                          "failedStepSource":  [
+                                                                                                   {
+                                                                                                       "step":  "Run unit and integration tests",
+                                                                                                       "line":  31,
+                                                                                                       "snippet":  "      - name: Run unit and integration tests\n        run: go test -race -tags=integration ./..."
+                                                                                                   }
+                                                                                               ]
+                                                                      },
+                                                         "expected":  "exact failing test command in workflow/step source"
+                                                     },
+                                                     {
+                                                         "name":  "browser-log-boundary",
+                                                         "pass":  true,
+                                                         "observed":  [
+                                                                          403
+                                                                      ],
+                                                         "expected":  "one or more explicit 403 browser-log boundaries"
+                                                     },
+                                                     {
+                                                         "name":  "provider-handoff-safe",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "browserLogs":  {
+                                                                                              "status":  403,
+                                                                                              "message":  "Must have admin rights to Repository."
+                                                                                          },
+                                                                          "handoff":  "connected GitHub fetch_workflow_job_logs",
+                                                                          "credentialsCopiedIntoEyeBrowse":  false,
+                                                                          "secretsStored":  false,
+                                                                          "rawLogStored":  false
+                                                                      },
+                                                         "expected":  "no credentials/secrets/raw logs stored"
+                                                     },
+                                                     {
+                                                         "name":  "provider-log-pins-ci",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "checkoutRef":  "c7456733f5ecfee07250b282e14d12da246d95fd",
+                                                                          "checkoutRefSource":  "refs/remotes/pull/14007/merge",
+                                                                          "goVersion":  "1.26.5",
+                                                                          "command":  "go test -race -tags=integration ./...",
+                                                                          "failingPackage":  "github.com/cli/cli/v2/pkg/cmd/pr/merge",
+                                                                          "failingFamilies":  [
+                                                                                                  "TestPrMerge_deleteBranch_worktrees",
+                                                                                                  "TestPrMerge_deleteBranch_noWorktreeConflict"
+                                                                                              ],
+                                                                          "failingRequest":  "DELETE https://api.github.com/repos/OWNER/REPO/git/refs/heads%2Ffeature",
+                                                                          "signature":  "no registered HTTP stubs matched",
+                                                                          "reportedExitCode":  1
+                                                                      },
+                                                         "expected":  "historical SHA + Go 1.26.5 + encoded-ref mismatch"
+                                                     },
+                                                     {
+                                                         "name":  "local-reproduction-same-signature",
+                                                         "pass":  true,
+                                                         "observed":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-baseline-go-test.log",
+                                                         "expected":  "same failure signature reproduced locally"
+                                                     }
+                                                 ],
+                                      "artifacts":  [
+                                                        "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g5-local-run.json",
+                                                        "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g5-authenticated-log-summary.json",
+                                                        "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-baseline-go-test.log"
+                                                    ]
+                                  }
+                  },
+                  {
+                      "gate":  "G6",
+                      "pass":  true,
+                      "details":  {
+                                      "pass":  true,
+                                      "checks":  [
+                                                     {
+                                                         "name":  "repo-query",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "repo-query",
+                                                                          "url":  "https://github.com/cli/cli?tab=readme-ov-file",
+                                                                          "target":  "t_136",
+                                                                          "openExit":  0,
+                                                                          "programExit":  0,
+                                                                          "programOk":  true,
+                                                                          "resultOk":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "defaultBranch":  "trunk",
+                                                                          "routeFamily":  "repository",
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "reason":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route"
+                                                                      },
+                                                         "expected":  "supported cli/cli route"
+                                                     },
+                                                     {
+                                                         "name":  "blob-query",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "blob-query",
+                                                                          "url":  "https://github.com/cli/cli/blob/trunk/README.md?plain=1",
+                                                                          "target":  "t_137",
+                                                                          "openExit":  0,
+                                                                          "programExit":  0,
+                                                                          "programOk":  true,
+                                                                          "resultOk":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "defaultBranch":  null,
+                                                                          "routeFamily":  "blob",
+                                                                          "ref":  "trunk",
+                                                                          "path":  "README.md",
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "reason":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route"
+                                                                      },
+                                                         "expected":  "supported cli/cli route"
+                                                     },
+                                                     {
+                                                         "name":  "issue-query",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "issue-query",
+                                                                          "url":  "https://github.com/cli/cli/issues/14134?notification_referrer_id=test",
+                                                                          "target":  "t_138",
+                                                                          "openExit":  0,
+                                                                          "programExit":  0,
+                                                                          "programOk":  true,
+                                                                          "resultOk":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "defaultBranch":  null,
+                                                                          "routeFamily":  "issues",
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  14134,
+                                                                          "pullRequest":  null,
+                                                                          "reason":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route"
+                                                                      },
+                                                         "expected":  "supported cli/cli route"
+                                                     },
+                                                     {
+                                                         "name":  "pr-subroute",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "pr-subroute",
+                                                                          "url":  "https://github.com/cli/cli/pull/14006/files?diff=split",
+                                                                          "target":  "t_139",
+                                                                          "openExit":  0,
+                                                                          "programExit":  0,
+                                                                          "programOk":  true,
+                                                                          "resultOk":  true,
+                                                                          "repository":  "cli/cli",
+                                                                          "defaultBranch":  null,
+                                                                          "routeFamily":  "pull",
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  null,
+                                                                          "pullRequest":  14006,
+                                                                          "reason":  null,
+                                                                          "evidenceSource":  "github-meta+browser-route"
+                                                                      },
+                                                         "expected":  "supported cli/cli route"
+                                                     },
+                                                     {
+                                                         "name":  "notifications",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "notifications",
+                                                                          "url":  "https://github.com/notifications",
+                                                                          "target":  "t_140",
+                                                                          "openExit":  0,
+                                                                          "programExit":  0,
+                                                                          "programOk":  true,
+                                                                          "resultOk":  false,
+                                                                          "repository":  null,
+                                                                          "defaultBranch":  null,
+                                                                          "routeFamily":  null,
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "reason":  "GitHub repository identity is not supported by current evidence.",
+                                                                          "evidenceSource":  null
+                                                                      },
+                                                         "expected":  "explicit refusal, no repository synthesis"
+                                                     },
+                                                     {
+                                                         "name":  "settings-profile",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "name":  "settings-profile",
+                                                                          "url":  "https://github.com/settings/profile",
+                                                                          "target":  "t_141",
+                                                                          "openExit":  0,
+                                                                          "programExit":  0,
+                                                                          "programOk":  true,
+                                                                          "resultOk":  false,
+                                                                          "repository":  null,
+                                                                          "defaultBranch":  null,
+                                                                          "routeFamily":  null,
+                                                                          "ref":  null,
+                                                                          "path":  null,
+                                                                          "issue":  null,
+                                                                          "pullRequest":  null,
+                                                                          "reason":  "GitHub repository identity is not supported by current evidence.",
+                                                                          "evidenceSource":  null
+                                                                      },
+                                                         "expected":  "explicit refusal, no repository synthesis"
+                                                     }
+                                                 ],
+                                      "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g6-pressure.json"
+                                  }
+                  },
+                  {
+                      "gate":  "G7",
+                      "pass":  true,
+                      "details":  {
+                                      "pass":  true,
+                                      "checks":  [
+                                                     {
+                                                         "name":  "historical-head",
+                                                         "pass":  true,
+                                                         "observed":  "c7456733f5ecfee07250b282e14d12da246d95fd",
+                                                         "expected":  "c7456733f5ecfee07250b282e14d12da246d95fd"
+                                                     },
+                                                     {
+                                                         "name":  "local-fix-branch",
+                                                         "pass":  true,
+                                                         "observed":  "eyebrowse-g7-local-fix",
+                                                         "expected":  "eyebrowse-g7-local-fix"
+                                                     },
+                                                     {
+                                                         "name":  "remote-source",
+                                                         "pass":  true,
+                                                         "observed":  "https://github.com/cli/cli.git",
+                                                         "expected":  "https://github.com/cli/cli.git"
+                                                     },
+                                                     {
+                                                         "name":  "no-upstream-push-target",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "remote":  "",
+                                                                          "merge":  ""
+                                                                      },
+                                                         "expected":  "no configured upstream"
+                                                     },
+                                                     {
+                                                         "name":  "only-expected-modification",
+                                                         "pass":  true,
+                                                         "observed":  [
+                                                                          " M pkg/cmd/pr/merge/merge_test.go"
+                                                                      ],
+                                                         "expected":  [
+                                                                          " M pkg/cmd/pr/merge/merge_test.go"
+                                                                      ]
+                                                     },
+                                                     {
+                                                         "name":  "baseline-fails-exactly",
+                                                         "pass":  true,
+                                                         "observed":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-baseline-go-test.log",
+                                                         "expected":  "encoded-ref unmatched-stub failure"
+                                                     },
+                                                     {
+                                                         "name":  "minimal-diff",
+                                                         "pass":  true,
+                                                         "observed":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-source-fix.diff",
+                                                         "expected":  "two historical stub strings encoded"
+                                                     },
+                                                     {
+                                                         "name":  "post-fix-tests",
+                                                         "pass":  true,
+                                                         "observed":  {
+                                                                          "focused":  {
+                                                                                          "exit":  0,
+                                                                                          "elapsedMs":  3258,
+                                                                                          "pass":  true,
+                                                                                          "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-focused-after-fix.log",
+                                                                                          "tail":  [
+                                                                                                       "=== RUN   TestPrMerge_deleteBranch_worktrees",
+                                                                                                       "=== RUN   TestPrMerge_deleteBranch_worktrees/cwd_is_the_head_branch\u0027s_linked_worktree",
+                                                                                                       "=== RUN   TestPrMerge_deleteBranch_worktrees/head_branch_is_in_a_sibling_linked_worktree",
+                                                                                                       "=== RUN   TestPrMerge_deleteBranch_worktrees/head_branch_is_checked_out_in_the_main_worktree",
+                                                                                                       "=== RUN   TestPrMerge_deleteBranch_worktrees/base_branch_is_checked_out_in_another_worktree",
+                                                                                                       "=== RUN   TestPrMerge_deleteBranch_worktrees/sibling_worktree_is_dirty_and_cannot_be_removed",
+                                                                                                       "--- PASS: TestPrMerge_deleteBranch_worktrees (0.04s)",
+                                                                                                       "    --- PASS: TestPrMerge_deleteBranch_worktrees/cwd_is_the_head_branch\u0027s_linked_worktree (0.01s)",
+                                                                                                       "    --- PASS: TestPrMerge_deleteBranch_worktrees/head_branch_is_in_a_sibling_linked_worktree (0.01s)",
+                                                                                                       "    --- PASS: TestPrMerge_deleteBranch_worktrees/head_branch_is_checked_out_in_the_main_worktree (0.01s)",
+                                                                                                       "    --- PASS: TestPrMerge_deleteBranch_worktrees/base_branch_is_checked_out_in_another_worktree (0.01s)",
+                                                                                                       "    --- PASS: TestPrMerge_deleteBranch_worktrees/sibling_worktree_is_dirty_and_cannot_be_removed (0.01s)",
+                                                                                                       "=== RUN   TestPrMerge_deleteBranch_noWorktreeConflict",
+                                                                                                       "--- PASS: TestPrMerge_deleteBranch_noWorktreeConflict (0.01s)",
+                                                                                                       "PASS",
+                                                                                                       "ok  \tgithub.com/cli/cli/v2/pkg/cmd/pr/merge\t2.093s"
+                                                                                                   ]
+                                                                                      },
+                                                                          "full-package":  {
+                                                                                               "exit":  0,
+                                                                                               "elapsedMs":  1977,
+                                                                                               "pass":  true,
+                                                                                               "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-full-package-after-fix.log",
+                                                                                               "tail":  [
+                                                                                                            "ok  \tgithub.com/cli/cli/v2/pkg/cmd/pr/merge\t1.015s"
+                                                                                                        ]
+                                                                                           },
+                                                                          "worktree-parser":  {
+                                                                                                  "exit":  0,
+                                                                                                  "elapsedMs":  2039,
+                                                                                                  "pass":  true,
+                                                                                                  "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-worktree-parser-after-fix.log",
+                                                                                                  "tail":  [
+                                                                                                               "=== RUN   TestParseWorktrees",
+                                                                                                               "=== RUN   TestParseWorktrees/empty_output",
+                                                                                                               "=== RUN   TestParseWorktrees/single_worktree",
+                                                                                                               "=== RUN   TestParseWorktrees/multiple_worktrees",
+                                                                                                               "=== RUN   TestParseWorktrees/detached_HEAD_has_no_branch",
+                                                                                                               "=== RUN   TestParseWorktrees/no_trailing_blank_line",
+                                                                                                               "=== RUN   TestParseWorktrees/bare_main_worktree_has_no_branch",
+                                                                                                               "--- PASS: TestParseWorktrees (0.00s)",
+                                                                                                               "    --- PASS: TestParseWorktrees/empty_output (0.00s)",
+                                                                                                               "    --- PASS: TestParseWorktrees/single_worktree (0.00s)",
+                                                                                                               "    --- PASS: TestParseWorktrees/multiple_worktrees (0.00s)",
+                                                                                                               "    --- PASS: TestParseWorktrees/detached_HEAD_has_no_branch (0.00s)",
+                                                                                                               "    --- PASS: TestParseWorktrees/no_trailing_blank_line (0.00s)",
+                                                                                                               "    --- PASS: TestParseWorktrees/bare_main_worktree_has_no_branch (0.00s)",
+                                                                                                               "PASS",
+                                                                                                               "ok  \tgithub.com/cli/cli/v2/git\t1.333s"
+                                                                                                           ]
+                                                                                              }
+                                                                      },
+                                                         "expected":  "focused + full package + parser pass"
+                                                     }
+                                                 ],
+                                      "artifacts":  [
+                                                        "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-baseline-go-test.log",
+                                                        "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-source-fix.diff",
+                                                        "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\g7-local-fix-tests.json"
+                                                    ]
+                                  }
+                  }
+              ]
+}

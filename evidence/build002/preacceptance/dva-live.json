@@ -1,0 +1,1531 @@
+{
+  "ok": true,
+  "failures": 0,
+  "results": [
+    {
+      "name": "browser.status",
+      "ok": true,
+      "elapsedMs": 1,
+      "value": {
+        "profileName": "build002-broad-stale-final",
+        "userDataDir": "C:\\AgentBrowser\\Profiles\\build002-broad-stale-final",
+        "port": 56402,
+        "browserId": "70eb05af-ead3-4e32-b522-4b9fe6a88937",
+        "browserVersion": "Chrome/151.0.7922.47",
+        "protocolVersion": "1.3",
+        "pipe": "eyebrowse-build002-broad-stale-final",
+        "artifactRoot": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final",
+        "downloadRoot": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\downloads",
+        "kernelPid": 111960
+      }
+    },
+    {
+      "name": "open.slow",
+      "ok": true,
+      "elapsedMs": 21,
+      "value": {
+        "targetId": "33616329CCED8719C324AE23624E1F61",
+        "target": {
+          "id": "t_119",
+          "targetId": "33616329CCED8719C324AE23624E1F61",
+          "type": "page",
+          "title": "",
+          "url": "http://127.0.0.1:18762/slow",
+          "attached": false,
+          "openerId": null,
+          "cognition": "cold",
+          "lifecycle": "unknown"
+        }
+      }
+    },
+    {
+      "name": "slow.activate",
+      "ok": true,
+      "elapsedMs": 8,
+      "value": {
+        "target": "t_119",
+        "targetId": "33616329CCED8719C324AE23624E1F61",
+        "activated": true
+      }
+    },
+    {
+      "name": "slow.observe",
+      "ok": true,
+      "elapsedMs": 21,
+      "value": {
+        "cursor": 40,
+        "target": "t_119",
+        "targetId": "33616329CCED8719C324AE23624E1F61",
+        "document": "d_14",
+        "frameId": "33616329CCED8719C324AE23624E1F61",
+        "loaderId": "35F7B8F4C7854895EB749C97453DF952",
+        "url": "http://127.0.0.1:18762/slow",
+        "title": "Performance Fixture",
+        "capturedAtUtc": "2026-08-12T13:17:11.6879104+00:00",
+        "providers": {
+          "accessibilityNodes": 16,
+          "semanticObjects": 2,
+          "domSnapshotDocuments": 1,
+          "domSnapshotNodes": 27,
+          "apcAvailable": true
+        },
+        "elements": [
+          {
+            "id": "e_33",
+            "target": "t_119",
+            "document": "d_14",
+            "backendNodeId": 11,
+            "axNodeId": "11",
+            "role": "button",
+            "name": "Block main thread",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "block",
+              "data-testid": "block-main"
+            }
+          },
+          {
+            "id": "e_34",
+            "target": "t_119",
+            "document": "d_14",
+            "backendNodeId": 12,
+            "axNodeId": "12",
+            "role": "button",
+            "name": "Fetch slow API",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "fetch",
+              "data-testid": "fetch-slow"
+            }
+          }
+        ],
+        "lifecycle": "active"
+      }
+    },
+    {
+      "name": "performance.timeline.enable",
+      "ok": true,
+      "elapsedMs": 5,
+      "value": {
+        "target": "t_119",
+        "requested": [
+          "largest-contentful-paint",
+          "layout-shift",
+          "longtask"
+        ],
+        "supported": [
+          "largest-contentful-paint",
+          "layout-shift"
+        ],
+        "unsupported": [
+          "longtask"
+        ]
+      }
+    },
+    {
+      "name": "performance.trace.start",
+      "ok": true,
+      "elapsedMs": 93,
+      "value": {
+        "target": "t_119",
+        "startedAtUtc": "2026-08-12T13:17:11.6986892+00:00",
+        "categories": [
+          "devtools.timeline",
+          "v8",
+          "blink.user_timing",
+          "loading",
+          "disabled-by-default-devtools.timeline"
+        ],
+        "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\traces\\trace-20260812-131711695-80db76730a6f4fa3a3377097819b3242.json"
+      }
+    },
+    {
+      "name": "slow.exercise",
+      "ok": true,
+      "elapsedMs": 142,
+      "value": 140.10000000149012
+    },
+    {
+      "name": "slow.fetch",
+      "ok": true,
+      "elapsedMs": 201,
+      "value": {
+        "elapsed": 199.5,
+        "json": {
+          "ok": true,
+          "delayedMs": 180,
+          "serverUtc": "2026-08-12T13:17:12.1216881+00:00"
+        }
+      }
+    },
+    {
+      "name": "performance.trace.stop",
+      "ok": true,
+      "elapsedMs": 40,
+      "value": {
+        "artifact": {
+          "id": "a_3",
+          "type": "performance-trace",
+          "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\traces\\trace-20260812-131711695-80db76730a6f4fa3a3377097819b3242.json",
+          "size": 305408,
+          "target": "t_119",
+          "source": "dataLoss=False",
+          "createdAtUtc": "2026-08-12T13:17:12.2735272+00:00"
+        },
+        "bytes": 305408,
+        "startedAtUtc": "2026-08-12T13:17:11.6986892+00:00",
+        "finishedAtUtc": "2026-08-12T13:17:12.273564+00:00",
+        "transferMode": "ReturnAsStream"
+      }
+    },
+    {
+      "name": "performance.timeline.list",
+      "ok": true,
+      "elapsedMs": 3,
+      "value": [
+        {
+          "id": 1,
+          "target": "t_119",
+          "type": "largest-contentful-paint",
+          "name": "",
+          "time": 1786540631.6866999,
+          "duration": 0,
+          "details": {
+            "frameId": "33616329CCED8719C324AE23624E1F61",
+            "type": "largest-contentful-paint",
+            "name": "",
+            "time": 1786540631.6866999,
+            "lcpDetails": {
+              "renderTime": 1786540631.6866999,
+              "loadTime": 0,
+              "size": 20468,
+              "nodeId": 9
+            }
+          },
+          "observedAtUtc": "2026-08-12T13:17:11.6986463+00:00"
+        }
+      ]
+    },
+    {
+      "name": "performance.metrics",
+      "ok": true,
+      "elapsedMs": 1,
+      "value": {
+        "metrics": [
+          {
+            "name": "Timestamp",
+            "value": 31611.60237
+          },
+          {
+            "name": "AudioHandlers",
+            "value": 0
+          },
+          {
+            "name": "AudioWorkletProcessors",
+            "value": 0
+          },
+          {
+            "name": "Documents",
+            "value": 2
+          },
+          {
+            "name": "Frames",
+            "value": 1
+          },
+          {
+            "name": "JSEventListeners",
+            "value": 13
+          },
+          {
+            "name": "LayoutObjects",
+            "value": 20
+          },
+          {
+            "name": "MediaKeySessions",
+            "value": 0
+          },
+          {
+            "name": "MediaKeys",
+            "value": 0
+          },
+          {
+            "name": "Nodes",
+            "value": 33
+          },
+          {
+            "name": "Resources",
+            "value": 1
+          },
+          {
+            "name": "ContextLifecycleStateObservers",
+            "value": 5
+          },
+          {
+            "name": "V8PerContextDatas",
+            "value": 2
+          },
+          {
+            "name": "WorkerGlobalScopes",
+            "value": 0
+          },
+          {
+            "name": "UACSSResources",
+            "value": 0
+          },
+          {
+            "name": "RTCPeerConnections",
+            "value": 0
+          },
+          {
+            "name": "ResourceFetchers",
+            "value": 2
+          },
+          {
+            "name": "AdSubframes",
+            "value": 0
+          },
+          {
+            "name": "DetachedScriptStates",
+            "value": 0
+          },
+          {
+            "name": "ArrayBufferContents",
+            "value": 0
+          },
+          {
+            "name": "LayoutCount",
+            "value": 0
+          },
+          {
+            "name": "RecalcStyleCount",
+            "value": 0
+          },
+          {
+            "name": "LayoutDuration",
+            "value": 0
+          },
+          {
+            "name": "RecalcStyleDuration",
+            "value": 0
+          },
+          {
+            "name": "DevToolsCommandDuration",
+            "value": 0.000007
+          },
+          {
+            "name": "ScriptDuration",
+            "value": 0
+          },
+          {
+            "name": "V8CompileDuration",
+            "value": 0
+          },
+          {
+            "name": "TaskDuration",
+            "value": 0.000011
+          },
+          {
+            "name": "TaskOtherDuration",
+            "value": 0.000004
+          },
+          {
+            "name": "ThreadTime",
+            "value": 0
+          },
+          {
+            "name": "ProcessTime",
+            "value": 0.234375
+          },
+          {
+            "name": "JSHeapUsedSize",
+            "value": 1252228
+          },
+          {
+            "name": "JSHeapTotalSize",
+            "value": 2359296
+          },
+          {
+            "name": "FirstMeaningfulPaint",
+            "value": 0
+          },
+          {
+            "name": "DomContentLoaded",
+            "value": 31610.995721
+          },
+          {
+            "name": "NavigationStart",
+            "value": 31610.96411
+          }
+        ]
+      }
+    },
+    {
+      "name": "network.search",
+      "ok": true,
+      "elapsedMs": 5,
+      "value": [
+        {
+          "id": "req_6",
+          "target": "t_119",
+          "document": "d_14",
+          "rawRequestId": "25308.2",
+          "url": "http://127.0.0.1:18762/api/slow?ms=180",
+          "method": "GET",
+          "resourceType": "Fetch",
+          "initiatorType": "script",
+          "status": 200,
+          "mimeType": "application/json",
+          "completed": true,
+          "failed": false,
+          "errorText": null,
+          "encodedDataLength": 234,
+          "startedAtUtc": "2026-08-12T13:17:11.930285+00:00",
+          "finishedAtUtc": "2026-08-12T13:17:12.1292205+00:00"
+        }
+      ]
+    },
+    {
+      "name": "network.detail",
+      "ok": true,
+      "elapsedMs": 3,
+      "value": {
+        "summary": {
+          "id": "req_6",
+          "target": "t_119",
+          "document": "d_14",
+          "rawRequestId": "25308.2",
+          "url": "http://127.0.0.1:18762/api/slow?ms=180",
+          "method": "GET",
+          "resourceType": "Fetch",
+          "initiatorType": "script",
+          "status": 200,
+          "mimeType": "application/json",
+          "completed": true,
+          "failed": false,
+          "errorText": null,
+          "encodedDataLength": 234,
+          "startedAtUtc": "2026-08-12T13:17:11.930285+00:00",
+          "finishedAtUtc": "2026-08-12T13:17:12.1292205+00:00"
+        },
+        "requestHeaders": {
+          "sec-ch-ua-platform": "\"Windows\"",
+          "referer": "http://127.0.0.1:18762/slow",
+          "accept-Language": "en-US,en;q=0.9",
+          "sec-ch-ua": "\"Chromium\";v=\"151\", \"Not=A?Brand\";v=\"99\"",
+          "user-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+          "sec-ch-ua-mobile": "?0"
+        },
+        "responseHeaders": {
+          "transfer-Encoding": "chunked",
+          "date": "Wed, 12 Aug 2026 13:17:12 GMT",
+          "content-Type": "application/json; charset=utf-8",
+          "server": "Kestrel"
+        },
+        "timing": {
+          "requestTime": 31611.253749,
+          "proxyStart": -1,
+          "proxyEnd": -1,
+          "dnsStart": -1,
+          "dnsEnd": -1,
+          "connectStart": -1,
+          "connectEnd": -1,
+          "sslStart": -1,
+          "sslEnd": -1,
+          "workerStart": -1,
+          "workerReady": -1,
+          "workerFetchStart": -1,
+          "workerRespondWithSettled": -1,
+          "sendStart": 0.135,
+          "sendEnd": 0.174,
+          "pushStart": 0,
+          "pushEnd": 0,
+          "receiveHeadersStart": 197.791,
+          "receiveHeadersEnd": 197.841
+        },
+        "initiator": {
+          "type": "script",
+          "stack": {
+            "callFrames": [
+              {
+                "functionName": "fetchDelay",
+                "scriptId": "6",
+                "url": "http://127.0.0.1:18762/slow",
+                "lineNumber": 8,
+                "columnNumber": 78
+              },
+              {
+                "functionName": "",
+                "scriptId": "18",
+                "url": "",
+                "lineNumber": 0,
+                "columnNumber": 19
+              }
+            ]
+          }
+        },
+        "requestPostData": null,
+        "redirectChain": [],
+        "fromServiceWorker": false,
+        "fromDiskCache": false,
+        "fromPrefetchCache": false,
+        "protocol": "http/1.1",
+        "remoteIpAddress": "127.0.0.1",
+        "remotePort": 18762,
+        "graphQlOperationName": null,
+        "graphQlOperationType": null
+      }
+    },
+    {
+      "name": "network.search_body",
+      "ok": true,
+      "elapsedMs": 6,
+      "value": {
+        "result": [
+          {
+            "lineNumber": 0,
+            "lineContent": "{\"ok\":true,\"delayedMs\":180,\"serverUtc\":\"2026-08-12T13:17:12.1216881+00:00\"}"
+          }
+        ],
+        "provider": "local-fallback",
+        "chromeSearchSupportedForRequest": false
+      }
+    },
+    {
+      "name": "network.body.save",
+      "ok": true,
+      "elapsedMs": 2,
+      "value": {
+        "id": "a_4",
+        "type": "network-body",
+        "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\network\\req_6-1b085ffe2f134770aeb5ed0f33ef4e3b.body",
+        "size": 75,
+        "target": "t_119",
+        "source": "http://127.0.0.1:18762/api/slow?ms=180",
+        "createdAtUtc": "2026-08-12T13:17:12.295105+00:00"
+      }
+    },
+    {
+      "name": "emulate.viewport",
+      "ok": true,
+      "elapsedMs": 6,
+      "value": {
+        "target": "t_119",
+        "width": 800,
+        "height": 600,
+        "deviceScaleFactor": 1,
+        "mobile": false,
+        "touch": false
+      }
+    },
+    {
+      "name": "screenshot.region",
+      "ok": true,
+      "elapsedMs": 34,
+      "value": {
+        "id": "a_5",
+        "type": "screenshot",
+        "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\20260812-131712333-region-t_119.png",
+        "size": 9261,
+        "target": "t_119",
+        "source": "region:0,0,400,300",
+        "createdAtUtc": "2026-08-12T13:17:12.334238+00:00"
+      }
+    },
+    {
+      "name": "emulate.reset",
+      "ok": true,
+      "elapsedMs": 9,
+      "value": {
+        "target": "t_119",
+        "reset": {
+          "viewport": true,
+          "touch": false,
+          "cpu": true,
+          "geolocation": true,
+          "locale": true,
+          "timezone": true,
+          "media": true,
+          "network": true,
+          "headers": true
+        }
+      }
+    },
+    {
+      "name": "open.a11y",
+      "ok": true,
+      "elapsedMs": 19,
+      "value": {
+        "targetId": "280904BB2BA9C86ACF903498B103222D",
+        "target": {
+          "id": "t_120",
+          "targetId": "280904BB2BA9C86ACF903498B103222D",
+          "type": "page",
+          "title": "",
+          "url": "http://127.0.0.1:18762/a11y",
+          "attached": false,
+          "openerId": null,
+          "cognition": "cold",
+          "lifecycle": "unknown"
+        }
+      }
+    },
+    {
+      "name": "a11y.observe",
+      "ok": true,
+      "elapsedMs": 41,
+      "value": {
+        "cursor": 41,
+        "target": "t_120",
+        "targetId": "280904BB2BA9C86ACF903498B103222D",
+        "document": "d_15",
+        "frameId": "280904BB2BA9C86ACF903498B103222D",
+        "loaderId": "E4348A1ACA585CAA2E273B8DE259D9AD",
+        "url": "http://127.0.0.1:18762/a11y",
+        "title": "127.0.0.1:18762/a11y",
+        "capturedAtUtc": "2026-08-12T13:17:12.4041015+00:00",
+        "providers": {
+          "accessibilityNodes": 32,
+          "semanticObjects": 7,
+          "domSnapshotDocuments": 1,
+          "domSnapshotNodes": 39,
+          "apcAvailable": true
+        },
+        "elements": [
+          {
+            "id": "e_35",
+            "target": "t_120",
+            "document": "d_15",
+            "backendNodeId": 13,
+            "axNodeId": "13",
+            "role": "button",
+            "name": "Good action",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "good",
+              "aria-label": "Good action"
+            }
+          },
+          {
+            "id": "e_36",
+            "target": "t_120",
+            "document": "d_15",
+            "backendNodeId": 14,
+            "axNodeId": "14",
+            "role": "button",
+            "name": "",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "unlabeled"
+            }
+          },
+          {
+            "id": "e_37",
+            "target": "t_120",
+            "document": "d_15",
+            "backendNodeId": 2,
+            "axNodeId": "2",
+            "role": "textbox",
+            "name": "Search without label",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "fill",
+              "type",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "unlabeled-input",
+              "type": "text",
+              "placeholder": "Search without label"
+            }
+          },
+          {
+            "id": "e_38",
+            "target": "t_120",
+            "document": "d_15",
+            "backendNodeId": 18,
+            "axNodeId": "18",
+            "role": "checkbox",
+            "name": "Custom checkbox with no aria-checked state",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "role": "checkbox",
+              "id": "fake-check",
+              "tabindex": "0"
+            }
+          },
+          {
+            "id": "e_39",
+            "target": "t_120",
+            "document": "d_15",
+            "backendNodeId": 19,
+            "axNodeId": "19",
+            "role": "button",
+            "name": "Broken relation",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "broken-description",
+              "aria-describedby": "missing-description"
+            }
+          },
+          {
+            "id": "e_40",
+            "target": "t_120",
+            "document": "d_15",
+            "backendNodeId": 20,
+            "axNodeId": "20",
+            "role": "link",
+            "name": "Artificial tab-order jump",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "href": "#later",
+              "tabindex": "5"
+            }
+          },
+          {
+            "id": "e_41",
+            "target": "t_120",
+            "document": "d_15",
+            "backendNodeId": 3,
+            "axNodeId": "3",
+            "role": "textbox",
+            "name": "The following controls intentionally contain accessibility defects.",
+            "description": null,
+            "value": "ok",
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "fill",
+              "type",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "labelled",
+              "aria-labelledby": "instructions",
+              "value": "ok"
+            }
+          }
+        ],
+        "lifecycle": "active"
+      }
+    },
+    {
+      "name": "accessibility.audit",
+      "ok": true,
+      "elapsedMs": 9,
+      "value": {
+        "target": "t_120",
+        "document": "d_15",
+        "semanticObjects": 7,
+        "unnamedInteractables": 1,
+        "unnamedElements": [
+          "e_36@1:button"
+        ],
+        "issues": [
+          "1 actionable semantic objects have no accessible name."
+        ]
+      }
+    },
+    {
+      "name": "open.memory",
+      "ok": true,
+      "elapsedMs": 22,
+      "value": {
+        "targetId": "C7F4CB9A9C7E5AC83BE96AC15F1718B1",
+        "target": {
+          "id": "t_121",
+          "targetId": "C7F4CB9A9C7E5AC83BE96AC15F1718B1",
+          "type": "page",
+          "title": "",
+          "url": "http://127.0.0.1:18762/memory",
+          "attached": false,
+          "openerId": null,
+          "cognition": "cold",
+          "lifecycle": "unknown"
+        }
+      }
+    },
+    {
+      "name": "memory.observe",
+      "ok": true,
+      "elapsedMs": 27,
+      "value": {
+        "cursor": 43,
+        "target": "t_121",
+        "targetId": "C7F4CB9A9C7E5AC83BE96AC15F1718B1",
+        "document": "d_16",
+        "frameId": "C7F4CB9A9C7E5AC83BE96AC15F1718B1",
+        "loaderId": "734A6992094E13BE84DFCF9434FADF55",
+        "url": "http://127.0.0.1:18762/memory",
+        "title": "127.0.0.1:18762/memory",
+        "capturedAtUtc": "2026-08-12T13:17:12.4616973+00:00",
+        "providers": {
+          "accessibilityNodes": 19,
+          "semanticObjects": 2,
+          "domSnapshotDocuments": 1,
+          "domSnapshotNodes": 30,
+          "apcAvailable": true
+        },
+        "elements": [
+          {
+            "id": "e_42",
+            "target": "t_121",
+            "document": "d_16",
+            "backendNodeId": 11,
+            "axNodeId": "11",
+            "role": "button",
+            "name": "Create leak batch",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "leak",
+              "data-testid": "create-leak"
+            }
+          },
+          {
+            "id": "e_43",
+            "target": "t_121",
+            "document": "d_16",
+            "backendNodeId": 12,
+            "axNodeId": "12",
+            "role": "button",
+            "name": "Clear retained objects",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "clear-leak",
+              "data-testid": "clear-leak"
+            }
+          }
+        ],
+        "lifecycle": "active"
+      }
+    },
+    {
+      "name": "memory.current.before",
+      "ok": true,
+      "elapsedMs": 5,
+      "value": {
+        "target": "t_121",
+        "usedHeapSize": 990672,
+        "totalHeapSize": 1310720,
+        "documents": 2,
+        "nodes": 34,
+        "jsEventListeners": 13,
+        "samplingProfile": null
+      }
+    },
+    {
+      "name": "memory.exercise",
+      "ok": true,
+      "elapsedMs": 2,
+      "value": 5
+    },
+    {
+      "name": "memory.sampling.start",
+      "ok": true,
+      "elapsedMs": 4,
+      "value": {
+        "target": "t_121",
+        "samplingInterval": 65536,
+        "stackDepth": 64
+      }
+    },
+    {
+      "name": "memory.exercise.sampled",
+      "ok": true,
+      "elapsedMs": 1,
+      "value": 10
+    },
+    {
+      "name": "memory.sampling.stop",
+      "ok": true,
+      "elapsedMs": 3,
+      "value": {
+        "profile": {
+          "head": {
+            "callFrame": {
+              "functionName": "(root)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "selfSize": 0,
+            "id": 1,
+            "children": []
+          },
+          "samples": []
+        }
+      }
+    },
+    {
+      "name": "open.dialog",
+      "ok": true,
+      "elapsedMs": 20,
+      "value": {
+        "targetId": "10FBEFC9E074CAF057C09F23AFF1621E",
+        "target": {
+          "id": "t_122",
+          "targetId": "10FBEFC9E074CAF057C09F23AFF1621E",
+          "type": "page",
+          "title": "",
+          "url": "http://127.0.0.1:18762/dialog",
+          "attached": false,
+          "openerId": null,
+          "cognition": "cold",
+          "lifecycle": "unknown"
+        }
+      }
+    },
+    {
+      "name": "dialog.observe",
+      "ok": true,
+      "elapsedMs": 36,
+      "value": {
+        "cursor": 44,
+        "target": "t_122",
+        "targetId": "10FBEFC9E074CAF057C09F23AFF1621E",
+        "document": "d_17",
+        "frameId": "10FBEFC9E074CAF057C09F23AFF1621E",
+        "loaderId": "5E0C2D3AA0B738949AE5A855F5FACB41",
+        "url": "http://127.0.0.1:18762/dialog",
+        "title": "127.0.0.1:18762/dialog",
+        "capturedAtUtc": "2026-08-12T13:17:12.5323564+00:00",
+        "providers": {
+          "accessibilityNodes": 16,
+          "semanticObjects": 3,
+          "domSnapshotDocuments": 1,
+          "domSnapshotNodes": 27,
+          "apcAvailable": true
+        },
+        "elements": [
+          {
+            "id": "e_44",
+            "target": "t_122",
+            "document": "d_17",
+            "backendNodeId": 10,
+            "axNodeId": "10",
+            "role": "button",
+            "name": "Alert",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "alert",
+              "data-testid": "alert"
+            }
+          },
+          {
+            "id": "e_45",
+            "target": "t_122",
+            "document": "d_17",
+            "backendNodeId": 11,
+            "axNodeId": "11",
+            "role": "button",
+            "name": "Confirm",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "confirm",
+              "data-testid": "confirm"
+            }
+          },
+          {
+            "id": "e_46",
+            "target": "t_122",
+            "document": "d_17",
+            "backendNodeId": 12,
+            "axNodeId": "12",
+            "role": "button",
+            "name": "Prompt",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "prompt",
+              "data-testid": "prompt"
+            }
+          }
+        ],
+        "lifecycle": "active"
+      }
+    },
+    {
+      "name": "dialog.trigger",
+      "ok": true,
+      "elapsedMs": 2,
+      "value": true
+    },
+    {
+      "name": "dialog.current",
+      "ok": true,
+      "elapsedMs": 3,
+      "value": {
+        "target": "t_122",
+        "type": "alert",
+        "message": "dva-dialog",
+        "defaultPrompt": null,
+        "url": "http://127.0.0.1:18762/dialog",
+        "open": true,
+        "openedAtUtc": "2026-08-12T13:17:12.5342484+00:00"
+      }
+    },
+    {
+      "name": "dialog.handle",
+      "ok": true,
+      "elapsedMs": 6,
+      "value": {
+        "target": "t_122",
+        "accepted": true,
+        "promptTextProvided": false
+      }
+    },
+    {
+      "name": "open.webmcp",
+      "ok": true,
+      "elapsedMs": 19,
+      "value": {
+        "targetId": "F19B85172B43047C947C79B5C0802DA0",
+        "target": {
+          "id": "t_123",
+          "targetId": "F19B85172B43047C947C79B5C0802DA0",
+          "type": "page",
+          "title": "",
+          "url": "http://127.0.0.1:18762/webmcp",
+          "attached": false,
+          "openerId": null,
+          "cognition": "cold",
+          "lifecycle": "unknown"
+        }
+      }
+    },
+    {
+      "name": "webmcp.observe",
+      "ok": true,
+      "elapsedMs": 32,
+      "value": {
+        "cursor": 45,
+        "target": "t_123",
+        "targetId": "F19B85172B43047C947C79B5C0802DA0",
+        "document": "d_18",
+        "frameId": "F19B85172B43047C947C79B5C0802DA0",
+        "loaderId": "2B21570CEFF56BB16CB63D1E9E3FE615",
+        "url": "http://127.0.0.1:18762/webmcp",
+        "title": "",
+        "capturedAtUtc": "2026-08-12T13:17:12.7045313+00:00",
+        "providers": {
+          "accessibilityNodes": 30,
+          "semanticObjects": 2,
+          "domSnapshotDocuments": 1,
+          "domSnapshotNodes": 32,
+          "apcAvailable": true
+        },
+        "elements": [
+          {
+            "id": "e_47",
+            "target": "t_123",
+            "document": "d_18",
+            "backendNodeId": 1,
+            "axNodeId": "1",
+            "role": "textbox",
+            "name": "Query",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "fill",
+              "type",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "query",
+              "aria-label": "Query"
+            }
+          },
+          {
+            "id": "e_48",
+            "target": "t_123",
+            "document": "d_18",
+            "backendNodeId": 12,
+            "axNodeId": "12",
+            "role": "button",
+            "name": "Submit",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "submit-item"
+            }
+          }
+        ],
+        "lifecycle": "active"
+      }
+    },
+    {
+      "name": "webmcp.list",
+      "ok": true,
+      "elapsedMs": 27,
+      "value": [
+        {
+          "target": "t_123",
+          "frameId": "F19B85172B43047C947C79B5C0802DA0",
+          "name": "add_item",
+          "description": "Add an item",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          "annotations": null,
+          "backendNodeId": null
+        },
+        {
+          "target": "t_123",
+          "frameId": "F19B85172B43047C947C79B5C0802DA0",
+          "name": "filter_items",
+          "description": "Filter visible fixture items",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "prefix": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "prefix"
+            ]
+          },
+          "annotations": null,
+          "backendNodeId": null
+        },
+        {
+          "target": "t_123",
+          "frameId": "F19B85172B43047C947C79B5C0802DA0",
+          "name": "search_items",
+          "description": "Search fixture items",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "query"
+            ]
+          },
+          "annotations": null,
+          "backendNodeId": null
+        },
+        {
+          "target": "t_123",
+          "frameId": "F19B85172B43047C947C79B5C0802DA0",
+          "name": "submit",
+          "description": "Submit current query",
+          "inputSchema": {
+            "type": "object"
+          },
+          "annotations": null,
+          "backendNodeId": null
+        }
+      ]
+    },
+    {
+      "name": "webmcp.inspect.first",
+      "ok": true,
+      "elapsedMs": 32,
+      "value": {
+        "target": "t_123",
+        "frameId": "F19B85172B43047C947C79B5C0802DA0",
+        "name": "add_item",
+        "description": "Add an item",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "value"
+          ]
+        },
+        "annotations": null,
+        "backendNodeId": null
+      }
+    },
+    {
+      "name": "open.runtime-tools",
+      "ok": true,
+      "elapsedMs": 19,
+      "value": {
+        "targetId": "18C012ACA013C659E97B136CB591B4C6",
+        "target": {
+          "id": "t_124",
+          "targetId": "18C012ACA013C659E97B136CB591B4C6",
+          "type": "page",
+          "title": "",
+          "url": "http://127.0.0.1:18762/runtime-tools",
+          "attached": false,
+          "openerId": null,
+          "cognition": "cold",
+          "lifecycle": "unknown"
+        }
+      }
+    },
+    {
+      "name": "runtime-tools.observe",
+      "ok": true,
+      "elapsedMs": 25,
+      "value": {
+        "cursor": 46,
+        "target": "t_124",
+        "targetId": "18C012ACA013C659E97B136CB591B4C6",
+        "document": "d_19",
+        "frameId": "18C012ACA013C659E97B136CB591B4C6",
+        "loaderId": "38D8B8E12AB2F27BC1C13BF1D60C00D8",
+        "url": "http://127.0.0.1:18762/runtime-tools",
+        "title": "127.0.0.1:18762/runtime-tools",
+        "capturedAtUtc": "2026-08-12T13:17:12.8072308+00:00",
+        "providers": {
+          "accessibilityNodes": 12,
+          "semanticObjects": 1,
+          "domSnapshotDocuments": 1,
+          "domSnapshotNodes": 20,
+          "apcAvailable": true
+        },
+        "elements": [
+          {
+            "id": "e_49",
+            "target": "t_124",
+            "document": "d_19",
+            "backendNodeId": 11,
+            "axNodeId": "11",
+            "role": "button",
+            "name": "Runtime node",
+            "description": null,
+            "value": null,
+            "disabled": false,
+            "focused": false,
+            "actions": [
+              "click",
+              "focus",
+              "key"
+            ],
+            "incarnation": 1,
+            "identity": "exact",
+            "identityAttributes": {
+              "id": "runtime-node",
+              "data-testid": "runtime-node"
+            }
+          }
+        ],
+        "lifecycle": "active"
+      }
+    },
+    {
+      "name": "runtime-tools.list",
+      "ok": true,
+      "elapsedMs": 2,
+      "value": [
+        {
+          "target": "t_124",
+          "document": "d_19",
+          "group": "fixture",
+          "groupDescription": "Build 002 runtime tools",
+          "name": "increment",
+          "description": "Increment the fixture counter",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "by": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "by"
+            ]
+          }
+        },
+        {
+          "target": "t_124",
+          "document": "d_19",
+          "group": "fixture",
+          "groupDescription": "Build 002 runtime tools",
+          "name": "get-node",
+          "description": "Return the fixture DOM node",
+          "inputSchema": {
+            "type": "object"
+          }
+        }
+      ]
+    },
+    {
+      "name": "runtime-debug.enable",
+      "ok": true,
+      "elapsedMs": 4,
+      "value": {
+        "target": "t_124",
+        "enabled": true
+      }
+    },
+    {
+      "name": "runtime-debug.scripts",
+      "ok": true,
+      "elapsedMs": 4,
+      "value": [
+        {
+          "target": "t_124",
+          "scriptId": "6",
+          "url": "http://127.0.0.1:18762/runtime-tools",
+          "sourceMapUrl": null,
+          "hash": "fb4f58f9425158ecc741252b58f9b842149f890ccf14d94309f97dcf1e82088c",
+          "isModule": false,
+          "executionContextId": 1,
+          "observedAtUtc": "2026-08-12T13:17:12.8131112+00:00"
+        }
+      ]
+    },
+    {
+      "name": "extension.list",
+      "ok": true,
+      "elapsedMs": 0,
+      "value": [
+        {
+          "id": "clhodpcbknggohfifpmebjpglpoojdcf",
+          "name": "eyebrowse agent bridge",
+          "version": "0.2.0",
+          "path": "X:\\CODEeye\\Worktrees\\eyebrowse-build002-skill-plane\\extension\\agent-bridge",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "browser.capabilities.performance",
+      "ok": true,
+      "elapsedMs": 7,
+      "value": {
+        "version": "1.3",
+        "domainCount": 57,
+        "commandCount": 669,
+        "eventCount": 237,
+        "prefix": "PerformanceTimeline",
+        "facets": [
+          {
+            "name": "PerformanceTimeline",
+            "kind": "domain",
+            "experimental": true,
+            "deprecated": false
+          },
+          {
+            "name": "PerformanceTimeline.enable",
+            "kind": "command",
+            "experimental": false,
+            "deprecated": false
+          },
+          {
+            "name": "PerformanceTimeline.timelineEventAdded",
+            "kind": "event",
+            "experimental": false,
+            "deprecated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "artifact.list",
+      "ok": true,
+      "elapsedMs": 1,
+      "value": [
+        {
+          "id": "a_5",
+          "type": "screenshot",
+          "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\20260812-131712333-region-t_119.png",
+          "size": 9261,
+          "target": "t_119",
+          "source": "region:0,0,400,300",
+          "createdAtUtc": "2026-08-12T13:17:12.334238+00:00"
+        },
+        {
+          "id": "a_4",
+          "type": "network-body",
+          "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\network\\req_6-1b085ffe2f134770aeb5ed0f33ef4e3b.body",
+          "size": 75,
+          "target": "t_119",
+          "source": "http://127.0.0.1:18762/api/slow?ms=180",
+          "createdAtUtc": "2026-08-12T13:17:12.295105+00:00"
+        },
+        {
+          "id": "a_3",
+          "type": "performance-trace",
+          "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\traces\\trace-20260812-131711695-80db76730a6f4fa3a3377097819b3242.json",
+          "size": 305408,
+          "target": "t_119",
+          "source": "dataLoss=False",
+          "createdAtUtc": "2026-08-12T13:17:12.2735272+00:00"
+        },
+        {
+          "id": "a_2",
+          "type": "screenshot",
+          "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\forms.png",
+          "size": 11220,
+          "target": "t_9",
+          "source": "http://127.0.0.1:18762/forms",
+          "createdAtUtc": "2026-08-12T13:09:24.2196173+00:00"
+        },
+        {
+          "id": "a_1",
+          "type": "download",
+          "path": "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\saved-fixture.txt",
+          "size": 51,
+          "target": null,
+          "source": "http://127.0.0.1:18762/download/test.txt",
+          "createdAtUtc": "2026-08-12T13:09:24.1687965+00:00"
+        }
+      ]
+    }
+  ]
+}

@@ -491,8 +491,11 @@ internal sealed partial class BrowserStateEngine
     {
         foreach (var state in _targets.Values)
         {
-            if (state.ElementsByLogicalId.TryGetValue(id, out var element))
-                return new ElementIdentityResolution(id, element.Identity, element.Incarnation, element.Target, element.Document, element.BackendNodeId, null, "Current live binding.");
+            if (!state.ElementsByLogicalId.TryGetValue(id, out var element))
+                continue;
+            if (!IsSemanticBindingLive(state))
+                return new ElementIdentityResolution(id, IdentityOutcomes.Stale, element.Incarnation, element.Target, element.Document, null, null, $"Target lifecycle is '{GetLifecycleState(state.TargetId)}'; the prior browser node is no longer live.");
+            return new ElementIdentityResolution(id, element.Identity, element.Incarnation, element.Target, element.Document, element.BackendNodeId, null, "Current live binding.");
         }
         if (_identityOutcomes.TryGetValue(id, out var outcome)) return outcome;
         return new ElementIdentityResolution(id, IdentityOutcomes.Stale, 1, null, null, null, null, "No current or historical binding is known in this kernel incarnation.");

@@ -1,0 +1,304 @@
+{
+    "ok":  true,
+    "runAtUtc":  "2026-08-12T13:16:27.7474104+00:00",
+    "classification":  "Build 002 mandatory hostile/recovery pre-freeze adjudication",
+    "checkCount":  12,
+    "passed":  12,
+    "failed":  0,
+    "checks":  [
+                   {
+                       "name":  "core-suite-green",
+                       "pass":  true,
+                       "observed":  {
+                                        "ok":  true,
+                                        "count":  26,
+                                        "failed":  [
+
+                                                   ]
+                                    },
+                       "expected":  "full deterministic core green"
+                   },
+                   {
+                       "name":  "identity-rebinding",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "name":  "replace-one-resolved-once",
+                                            "pass":  true,
+                                            "observed":  1
+                                        },
+                                        {
+                                            "name":  "unique-semantic-rebound",
+                                            "pass":  true,
+                                            "observed":  {
+                                                             "Id":  "e_2",
+                                                             "Outcome":  "rebound",
+                                                             "Incarnation":  2,
+                                                             "Target":  "t_5",
+                                                             "Document":  "d_1",
+                                                             "BackendNodeId":  29,
+                                                             "Candidates":  null,
+                                                             "Reason":  "Current live binding."
+                                                         }
+                                        },
+                                        {
+                                            "name":  "replace-two-resolved-once-before-split",
+                                            "pass":  true,
+                                            "observed":  1
+                                        }
+                                    ],
+                       "expected":  "one or more matching core checks, all pass"
+                   },
+                   {
+                       "name":  "ambiguity-refusal",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "name":  "ambiguous-split-abstention",
+                                            "pass":  true,
+                                            "observed":  {
+                                                             "Id":  "e_3",
+                                                             "Outcome":  "ambiguous",
+                                                             "Incarnation":  1,
+                                                             "Target":  "t_5",
+                                                             "Document":  "d_1",
+                                                             "BackendNodeId":  null,
+                                                             "Candidates":  [
+                                                                                "e_4",
+                                                                                "e_5"
+                                                                            ],
+                                                             "Reason":  "Multiple plausible successors remain."
+                                                         }
+                                        }
+                                    ],
+                       "expected":  "one or more matching core checks, all pass"
+                   },
+                   {
+                       "name":  "same-target-spa",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "name":  "spa-document-continuity",
+                                            "pass":  true,
+                                            "observed":  {
+                                                             "before":  "d_2",
+                                                             "after":  "d_2",
+                                                             "url":  "http://127.0.0.1:18762/spa#a"
+                                                         }
+                                        }
+                                    ],
+                       "expected":  "one or more matching core checks, all pass"
+                   },
+                   {
+                       "name":  "bfcache",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "name":  "bfcache-document-restored",
+                                            "pass":  true,
+                                            "observed":  {
+                                                             "a":  "d_3",
+                                                             "b":  "d_4",
+                                                             "restored":  "d_3"
+                                                         }
+                                        },
+                                        {
+                                            "name":  "bfcache-heap-restored",
+                                            "pass":  true,
+                                            "observed":  {
+                                                             "before":  "792b1739-4a28-43ff-9889-9ff5dd7d8fa7",
+                                                             "after":  "792b1739-4a28-43ff-9889-9ff5dd7d8fa7"
+                                                         }
+                                        }
+                                    ],
+                       "expected":  "one or more matching core checks, all pass"
+                   },
+                   {
+                       "name":  "browser-native-download",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "name":  "download-begin-observed",
+                                            "pass":  true,
+                                            "observed":  {
+                                                             "Id":  "dl_1",
+                                                             "Guid":  "90b4b7ab-cc60-4527-9b11-555a5c803b5d",
+                                                             "Url":  "http://127.0.0.1:18762/download/test.txt",
+                                                             "SuggestedFilename":  "fixture.txt",
+                                                             "State":  "completed",
+                                                             "ReceivedBytes":  51,
+                                                             "TotalBytes":  51,
+                                                             "FrameId":  "10A527624288C83D4956C6D991DF0531",
+                                                             "Path":  "C:\\AgentBrowser\\runtime\\build002-broad-stale-final\\downloads\\build002-broad-stale-final\\90b4b7ab-cc60-4527-9b11-555a5c803b5d",
+                                                             "StartedAtUtc":  "2026-08-12T13:09:24.0446146+00:00",
+                                                             "UpdatedAtUtc":  "2026-08-12T13:09:24.1054492+00:00"
+                                                         }
+                                        },
+                                        {
+                                            "name":  "download-completes",
+                                            "pass":  true,
+                                            "observed":  "completed"
+                                        },
+                                        {
+                                            "name":  "download-artifact-materialized",
+                                            "pass":  true,
+                                            "observed":  {
+                                                             "Id":  "a_1",
+                                                             "Type":  "download",
+                                                             "Path":  "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\saved-fixture.txt",
+                                                             "Size":  51,
+                                                             "Target":  null,
+                                                             "Source":  "http://127.0.0.1:18762/download/test.txt",
+                                                             "CreatedAtUtc":  "2026-08-12T13:09:24.1687965+00:00"
+                                                         }
+                                        }
+                                    ],
+                       "expected":  "one or more matching core checks, all pass"
+                   },
+                   {
+                       "name":  "oopif",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "name":  "cross-origin-frame-visible-to-target-census",
+                                            "pass":  true,
+                                            "observed":  1
+                                        }
+                                    ],
+                       "expected":  "one or more matching core checks, all pass"
+                   },
+                   {
+                       "name":  "hundred-target-lazy-cognition",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "name":  "scale-100-targets-created",
+                                            "pass":  true,
+                                            "observed":  100
+                                        },
+                                        {
+                                            "name":  "scale-lazy-zero-deep-activation-before-observe",
+                                            "pass":  true,
+                                            "observed":  0
+                                        }
+                                    ],
+                       "expected":  "one or more matching core checks, all pass"
+                   },
+                   {
+                       "name":  "renderer-process-change",
+                       "pass":  true,
+                       "observed":  {
+                                        "target":  "t_114",
+                                        "beforeDocument":  "d_8",
+                                        "afterDocument":  "d_9",
+                                        "beforeRenderer":  {
+                                                               "id":  "86312",
+                                                               "cpuBefore":  0.079858,
+                                                               "cpuAfter":  0.732288,
+                                                               "delta":  0.6524300000000001
+                                                           },
+                                        "afterRenderer":  {
+                                                              "id":  "34388",
+                                                              "cpuBefore":  0.067011,
+                                                              "cpuAfter":  0.719083,
+                                                              "delta":  0.652072
+                                                          },
+                                        "beforeOrigin":  "http://127.0.0.1:18762",
+                                        "afterOrigin":  "http://127.0.0.2:18762"
+                                    },
+                       "expected":  "same t_*, new d_*, different measured renderer PID"
+                   },
+                   {
+                       "name":  "popup-new-tab",
+                       "pass":  true,
+                       "observed":  {
+                                        "pass":  true,
+                                        "primaryTarget":  "t_115",
+                                        "primaryDocument":  "d_10",
+                                        "button":  "e_25",
+                                        "popupTarget":  "t_116",
+                                        "popupDocument":  "d_11",
+                                        "popupUrl":  "http://127.0.0.1:18762/horizontal/export?popup=1",
+                                        "currentAfterReactivate":  "t_115"
+                                    },
+                       "expected":  "semantic button creates new t_*, primary can be restored"
+                   },
+                   {
+                       "name":  "target-replacement-wrong-object-refusal",
+                       "pass":  true,
+                       "observed":  {
+                                        "oldTarget":  "t_117",
+                                        "oldDocument":  "d_12",
+                                        "oldElement":  "e_27",
+                                        "oldStillPresent":  false,
+                                        "oldInspect":  {
+                                                           "id":  "e_27",
+                                                           "target":  "t_117",
+                                                           "document":  "d_12",
+                                                           "backendNodeId":  11,
+                                                           "axNodeId":  "11",
+                                                           "role":  "button",
+                                                           "name":  "Stable action",
+                                                           "description":  null,
+                                                           "value":  null,
+                                                           "disabled":  false,
+                                                           "focused":  false,
+                                                           "actions":  [
+
+                                                                       ],
+                                                           "incarnation":  1,
+                                                           "identity":  "stale",
+                                                           "identityAttributes":  {
+                                                                                      "id":  "stable",
+                                                                                      "data-testid":  "stable-action"
+                                                                                  }
+                                                       },
+                                        "oldIdentity":  {
+                                                            "id":  "e_27",
+                                                            "outcome":  "stale",
+                                                            "incarnation":  1,
+                                                            "target":  "t_117",
+                                                            "document":  "d_12",
+                                                            "backendNodeId":  null,
+                                                            "candidates":  null,
+                                                            "reason":  "Target lifecycle is \u0027unavailable\u0027; the prior browser node is no longer live."
+                                                        },
+                                        "oldClickError":  "Semantic element \u0027e_27\u0027 is stale because target \u0027t_117\u0027 lifecycle is \u0027unavailable\u0027.",
+                                        "staleInspectPass":  true,
+                                        "staleIdentityPass":  true,
+                                        "staleActuationPass":  true,
+                                        "newTarget":  "t_118",
+                                        "newDocument":  "d_13",
+                                        "newElement":  "e_30"
+                                    },
+                       "expected":  "dead e_* is explicitly stale with zero actions/no backend node; actuation is rejected before CDP; replacement has new t_*/d_*/e_*"
+                   },
+                   {
+                       "name":  "controller-death-recovery-extra",
+                       "pass":  true,
+                       "observed":  {
+                                        "ok":  true,
+                                        "count":  10,
+                                        "names":  [
+                                                      "bridge-before-navigation",
+                                                      "controller-died-browser-survived",
+                                                      "replacement-controller",
+                                                      "exact-target",
+                                                      "exact-document",
+                                                      "exact-name-element",
+                                                      "exact-submit-element",
+                                                      "surviving-value",
+                                                      "old-id-action-after-restart",
+                                                      "post-restart-delta-same-id"
+                                                  ]
+                                    },
+                       "expected":  "10/10 exact controller-death reattachment regression"
+                   }
+               ],
+    "artifacts":  {
+                      "core":  "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\measurements\\fixture-smoke-final.json",
+                      "missingHostile":  "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\measurements\\hostile-missing-final.json",
+                      "reattach":  "X:\\AgentBrowser\\Artifacts\\build002-stale-identity-reattach-cft\\measurements\\reattach-regression.json",
+                      "adjudication":  "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\measurements\\hostile-gates-final.json"
+                  }
+}

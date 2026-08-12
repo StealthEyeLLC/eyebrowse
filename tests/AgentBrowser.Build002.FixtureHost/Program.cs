@@ -345,6 +345,13 @@ app.MapGet("/second-mail/attachment/{id:int}.txt", (HttpContext context, int id)
     context.Response.Headers.ContentDisposition = $"attachment; filename=message-{id}.txt";
     return Results.Bytes(bytes, "text/plain; charset=utf-8");
 });
+app.MapGet("/hostile/popup", () => Html("Popup Fixture", """
+<main>
+<h1>Popup / new-tab fixture</h1>
+<button id="open-popup" data-testid="open-popup" aria-label="Open popup" onclick="window.open('/horizontal/export?popup=1','_blank')">Open popup</button>
+<p id="popup-status">ready</p>
+</main>
+"""));
 app.MapGet("/memory", () => Html("Memory Leak Fixture", """
 <h1>Memory leak fixture</h1>
 <p>LeakyWidget instances are intentionally retained by a global array.</p>

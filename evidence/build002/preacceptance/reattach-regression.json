@@ -1,0 +1,129 @@
+{
+    "ok":  true,
+    "runAtUtc":  "2026-08-12T13:01:29.4578882+00:00",
+    "profile":  "build002-stale-identity-reattach-cft",
+    "kernelDll":  "X:\\CODEeye\\Worktrees\\eyebrowse-build002-skill-plane\\tests\\build002-compile\\stale-identity-fix2\\AgentBrowser.Kernel.dll",
+    "chrome":  {
+                   "pid":  121812,
+                   "browserId":  "334d0eb7-8ddf-4117-aa44-ff586105ef23",
+                   "port":  64178,
+                   "version":  "Chrome/151.0.7922.47"
+               },
+    "before":  {
+                   "kernelPid":  124584,
+                   "target":  "t_5",
+                   "rawTargetId":  "7D7B359D437A00930E2AF77E90970128",
+                   "document":  "d_1",
+                   "name":  {
+                                "id":  "e_4",
+                                "incarnation":  1,
+                                "value":  "survives-kernel-death-1786539687565"
+                            },
+                   "submit":  {
+                                  "id":  "e_3",
+                                  "incarnation":  1
+                              },
+                   "sentinel":  "survives-kernel-death-1786539687565",
+                   "cursor":  5,
+                   "bridge":  {
+                                  "id":  "clhodpcbknggohfifpmebjpglpoojdcf",
+                                  "name":  "eyebrowse agent bridge",
+                                  "version":  "0.2.0",
+                                  "path":  "X:\\CODEeye\\Worktrees\\eyebrowse-build002-skill-plane\\extension\\agent-bridge",
+                                  "enabled":  true
+                              }
+               },
+    "after":  {
+                  "kernelPid":  126912,
+                  "target":  "t_5",
+                  "rawTargetId":  "7D7B359D437A00930E2AF77E90970128",
+                  "document":  "d_1",
+                  "name":  {
+                               "id":  "e_4",
+                               "incarnation":  1,
+                               "beforeValue":  "survives-kernel-death-1786539687565",
+                               "afterValue":  "survives-kernel-death-1786539687565-after-restart"
+                           },
+                  "submit":  {
+                                 "id":  "e_3",
+                                 "incarnation":  1
+                             },
+                  "exactTarget":  true,
+                  "exactDocument":  true,
+                  "exactName":  true,
+                  "exactSubmit":  true,
+                  "oldIdActionSucceeded":  true,
+                  "postRestartDelta":  true
+              },
+    "checks":  [
+                   {
+                       "name":  "bridge-before-navigation",
+                       "pass":  true,
+                       "observed":  "clhodpcbknggohfifpmebjpglpoojdcf"
+                   },
+                   {
+                       "name":  "controller-died-browser-survived",
+                       "pass":  true,
+                       "observed":  {
+                                        "oldKernel":  124584,
+                                        "chrome":  121812,
+                                        "browserId":  "334d0eb7-8ddf-4117-aa44-ff586105ef23"
+                                    }
+                   },
+                   {
+                       "name":  "replacement-controller",
+                       "pass":  true,
+                       "observed":  {
+                                        "old":  124584,
+                                        "new":  126912
+                                    }
+                   },
+                   {
+                       "name":  "exact-target",
+                       "pass":  true,
+                       "observed":  "t_5",
+                       "expected":  "t_5"
+                   },
+                   {
+                       "name":  "exact-document",
+                       "pass":  true,
+                       "observed":  "d_1",
+                       "expected":  "d_1"
+                   },
+                   {
+                       "name":  "exact-name-element",
+                       "pass":  true,
+                       "observed":  "e_4",
+                       "expected":  "e_4"
+                   },
+                   {
+                       "name":  "exact-submit-element",
+                       "pass":  true,
+                       "observed":  "e_3",
+                       "expected":  "e_3"
+                   },
+                   {
+                       "name":  "surviving-value",
+                       "pass":  true,
+                       "observed":  "survives-kernel-death-1786539687565",
+                       "expected":  "survives-kernel-death-1786539687565"
+                   },
+                   {
+                       "name":  "old-id-action-after-restart",
+                       "pass":  true,
+                       "observed":  "survives-kernel-death-1786539687565-after-restart"
+                   },
+                   {
+                       "name":  "post-restart-delta-same-id",
+                       "pass":  true,
+                       "observed":  [
+                                        "e_4"
+                                    ]
+                   }
+               ],
+    "artifacts":  {
+                      "before":  "X:\\AgentBrowser\\Artifacts\\build002-stale-identity-reattach-cft\\measurements\\reattach-before.json",
+                      "after":  "X:\\AgentBrowser\\Artifacts\\build002-stale-identity-reattach-cft\\measurements\\reattach-after.json",
+                      "result":  "X:\\AgentBrowser\\Artifacts\\build002-stale-identity-reattach-cft\\measurements\\reattach-regression.json"
+                  }
+}

@@ -43,11 +43,13 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
     {
         var result = await _cdp.SendAsync("Target.getTargets", cancellationToken: cancellationToken);
         var list = new List<BrowserTarget>();
+        var liveTargetIds = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var info in result.GetProperty("targetInfos").EnumerateArray())
         {
             var targetId = info.GetProperty("targetId").GetString() ?? "";
             var logicalId = _ids.TargetIdFor(targetId);
+            liveTargetIds.Add(targetId);
             list.Add(new BrowserTarget(
                 logicalId,
                 targetId,
@@ -58,6 +60,14 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
                 info.TryGetProperty("openerId", out var opener) ? opener.GetString() : null,
                 GetCognitionState(targetId),
                 GetLifecycleState(targetId)));
+        }
+
+
+        foreach (var state in _targets.Values)
+        {
+            if (liveTargetIds.Contains(state.TargetId) || GetLifecycleState(state.TargetId) is LifecycleStates.Unavailable or LifecycleStates.Discarded)
+                continue;
+            UpdateLifecycle(state, LifecycleStates.Unavailable, "Target.getTargets:missing", javaScriptAvailable: false, rendererBump: true, realmBump: true);
         }
 
         return list.OrderBy(x => x.Id, StringComparer.Ordinal).ToArray();
@@ -134,8 +144,11 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
     {
         foreach (var target in _targets.Values)
         {
-            if (target.ElementsByLogicalId.TryGetValue(elementId, out var element))
+            if (!target.ElementsByLogicalId.TryGetValue(elementId, out var element))
+                continue;
+            if (IsSemanticBindingLive(target))
                 return element;
+            return element with { Identity = IdentityOutcomes.Stale, Actions = Array.Empty<string>() };
         }
 
         throw new KeyNotFoundException($"Unknown semantic element '{elementId}'. Observe the target first.");
@@ -609,10 +622,19 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
     {
         foreach (var state in _targets.Values)
         {
-            if (state.ElementsByLogicalId.TryGetValue(elementId, out var element))
-                return (state, element);
+            if (!state.ElementsByLogicalId.TryGetValue(elementId, out var element))
+                continue;
+            if (!IsSemanticBindingLive(state))
+                throw new InvalidOperationException($"Semantic element '{elementId}' is stale because target '{state.LogicalId}' lifecycle is '{GetLifecycleState(state.TargetId)}'.");
+            return (state, element);
         }
         throw new KeyNotFoundException($"Unknown semantic element '{elementId}'. Observe the target first.");
+    }
+
+    private bool IsSemanticBindingLive(TargetState state)
+    {
+        var lifecycle = GetLifecycleState(state.TargetId);
+        return lifecycle is not (LifecycleStates.Unavailable or LifecycleStates.Discarded);
     }
 
     private Task OnCdpEventAsync(JsonElement message)

@@ -1,0 +1,123 @@
+{
+    "ok":  true,
+    "runAtUtc":  "2026-08-12T12:43:33.2610895+00:00",
+    "gate1":  {
+                  "requirement":  "one useful task uses at least three reusable Skills",
+                  "workflow":  "live GitHub PR inspection + export + three-tab comparison",
+                  "skills":  [
+                                 "github",
+                                 "current-page-export",
+                                 "multi-tab"
+                             ],
+                  "artifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\composition\\workflow-a-three-skills.json"
+              },
+    "gate2":  {
+                  "requirement":  "later task combines procedural Skill knowledge with two or more actual Eyes/providers",
+                  "workflow":  "GitHub failed Actions diagnosis using eyeBROWSE browser/provider plus connected GitHub log provider",
+                  "proceduralSkill":  "github",
+                  "providers":  [
+                                    "eyeBROWSE browser/runtime + public GitHub provider",
+                                    "connected GitHub"
+                                ],
+                  "browserArtifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\github-g5-local-run.json",
+                  "providerArtifact":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\composition\\workflow-b-github-provider.json"
+              },
+    "checkCount":  6,
+    "passed":  6,
+    "failed":  0,
+    "checks":  [
+                   {
+                       "name":  "three-independent-skills",
+                       "pass":  true,
+                       "observed":  [
+                                        "github",
+                                        "current-page-export",
+                                        "multi-tab"
+                                    ],
+                       "expected":  [
+                                        "github",
+                                        "current-page-export",
+                                        "multi-tab"
+                                    ]
+                   },
+                   {
+                       "name":  "composition-primary-preserved",
+                       "pass":  true,
+                       "observed":  {
+                                        "before":  "t_183",
+                                        "after":  "t_183"
+                                    },
+                       "expected":  "same t_*"
+                   },
+                   {
+                       "name":  "composition-material-artifact",
+                       "pass":  true,
+                       "observed":  {
+                                        "path":  "X:\\AgentBrowser\\Artifacts\\build002-release-preflight\\measurements\\composition\\workflow-a-pr.md",
+                                        "chars":  11222,
+                                        "sha256":  "3D803A76B0A9EFC6293EBE2730B1EBC3D7BD38B99FF295C0E7756A1A663DAC61"
+                                    },
+                       "expected":  "nonempty exported PR artifact"
+                   },
+                   {
+                       "name":  "procedural-skill-browser-provider",
+                       "pass":  true,
+                       "observed":  {
+                                        "kernelOperations":  15,
+                                        "repository":  "cli/cli",
+                                        "run":  30928568021,
+                                        "failedJobs":  3,
+                                        "logsAccess":  {
+                                                           "jobId":  92057137042,
+                                                           "ok":  false,
+                                                           "status":  403,
+                                                           "statusText":  null,
+                                                           "message":  "Must have admin rights to Repository.",
+                                                           "documentationUrl":  "https://docs.github.com/rest/actions/workflow-jobs#download-job-logs-for-a-workflow-run",
+                                                           "note":  "Raw job logs were not accessible with the current browser/provider authority; no log content was fabricated."
+                                                       }
+                                    },
+                       "expected":  "GitHub Skill + eyeBROWSE browser/provider diagnosis"
+                   },
+                   {
+                       "name":  "second-provider-connected-github",
+                       "pass":  true,
+                       "observed":  {
+                                        "capturedAtUtc":  "2026-08-12T12:43:33.1425117+00:00",
+                                        "provider":  "connected GitHub",
+                                        "operation":  "fetch_workflow_job_logs",
+                                        "repository":  "cli/cli",
+                                        "runId":  30928568021,
+                                        "jobId":  92057137129,
+                                        "jobName":  "build (ubuntu-latest)",
+                                        "observed":  {
+                                                         "checkoutSha":  "c7456733f5ecfee07250b282e14d12da246d95fd",
+                                                         "goVersion":  "1.26.5",
+                                                         "command":  "go test -race -tags=integration ./...",
+                                                         "failingPackage":  "github.com/cli/cli/v2/pkg/cmd/pr/merge",
+                                                         "failingRequest":  "DELETE https://api.github.com/repos/OWNER/REPO/git/refs/heads%2Ffeature",
+                                                         "signature":  "no registered HTTP stubs matched",
+                                                         "exitCode":  1
+                                                     },
+                                        "authority":  {
+                                                          "credentialsCopiedIntoEyeBrowse":  false,
+                                                          "rawTokenStored":  false,
+                                                          "rawLogStored":  false,
+                                                          "summaryOnly":  true
+                                                      }
+                                    },
+                       "expected":  "connected GitHub raw-log provider confirms same run/job failure"
+                   },
+                   {
+                       "name":  "provider-boundary-safe",
+                       "pass":  true,
+                       "observed":  {
+                                        "credentialsCopiedIntoEyeBrowse":  false,
+                                        "rawTokenStored":  false,
+                                        "rawLogStored":  false,
+                                        "summaryOnly":  true
+                                    },
+                       "expected":  "no connector credentials/token/raw log migrated into eyeBROWSE"
+                   }
+               ]
+}

@@ -1,0 +1,208 @@
+{
+    "ok":  true,
+    "runAtUtc":  "2026-08-12T12:41:59.9495700+00:00",
+    "classification":  "controlled pre-subject second-site generalization; NOT final live Gmail gate",
+    "origin":  "http://127.0.0.2:18762",
+    "checkCount":  15,
+    "passed":  15,
+    "failed":  0,
+    "checks":  [
+                   {
+                       "name":  "fresh-precondition",
+                       "pass":  true,
+                       "observed":  {
+                                        "ok":  true,
+                                        "cookies":  0,
+                                        "pages":  [
+                                                      {
+                                                          "id":  "t_5",
+                                                          "url":  "about:blank"
+                                                      }
+                                                  ]
+                                    },
+                       "expected":  "bridge-ready, zero cookies, only about:blank"
+                   },
+                   {
+                       "name":  "unauthenticated-redirect",
+                       "pass":  true,
+                       "observed":  {
+                                        "target":  "t_9",
+                                        "url":  "http://127.0.0.2:18762/second-mail/sign-in"
+                                    },
+                       "expected":  "http://127.0.0.2:18762/second-mail/sign-in"
+                   },
+                   {
+                       "name":  "authenticated-primary",
+                       "pass":  true,
+                       "observed":  {
+                                        "target":  "t_9",
+                                        "document":  "d_1",
+                                        "origin":  "http://127.0.0.2:18762",
+                                        "authState":  "authenticated",
+                                        "initialCount":  "showing 25 of 240"
+                                    },
+                       "expected":  "authenticated t_*/d_* on second-site origin"
+                   },
+                   {
+                       "name":  "virtualized-inbox",
+                       "pass":  true,
+                       "observed":  "showing 25 of 240",
+                       "expected":  "showing 25 of 240"
+                   },
+                   {
+                       "name":  "persistent-auth-second-tab",
+                       "pass":  true,
+                       "observed":  {
+                                        "secondTarget":  "t_10",
+                                        "url":  "http://127.0.0.2:18762/second-mail",
+                                        "origin":  "http://127.0.0.2:18762",
+                                        "authState":  "authenticated",
+                                        "authCookies":  [
+                                                            {
+                                                                "name":  "second_mail_auth",
+                                                                "value":  "yes",
+                                                                "domain":  "127.0.0.2",
+                                                                "path":  "/",
+                                                                "httpOnly":  true,
+                                                                "sameSite":  "Lax"
+                                                            }
+                                                        ]
+                                    },
+                       "expected":  "authenticated second t_* on same second-site origin"
+                   },
+                   {
+                       "name":  "http-only-cookie-authority",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "name":  "second_mail_auth",
+                                            "value":  "yes",
+                                            "domain":  "127.0.0.2",
+                                            "path":  "/",
+                                            "httpOnly":  true,
+                                            "sameSite":  "Lax"
+                                        }
+                                    ],
+                       "expected":  "one HttpOnly second_mail_auth cookie for 127.0.0.2"
+                   },
+                   {
+                       "name":  "bounded-search",
+                       "pass":  true,
+                       "observed":  {
+                                        "control":  "e_2",
+                                        "count":  "showing 6 of 6",
+                                        "messageButtons":  7,
+                                        "selected":  "e_28",
+                                        "selectedName":  "Open Invoice 037 from sender037@example.test",
+                                        "document":  "d_1"
+                                    },
+                       "expected":  "semantic search e_*, six invoice results"
+                   },
+                   {
+                       "name":  "semantic-message-open",
+                       "pass":  true,
+                       "observed":  {
+                                        "selected":  "e_28",
+                                        "name":  "Open Invoice 037 from sender037@example.test",
+                                        "status":  "opened:37"
+                                    },
+                       "expected":  "semantic Invoice 037 button opened"
+                   },
+                   {
+                       "name":  "semantic-attachment-link",
+                       "pass":  true,
+                       "observed":  {
+                                        "id":  "e_34",
+                                        "url":  "http://127.0.0.2:18762/second-mail/attachment/37.txt"
+                                    },
+                       "expected":  "http://127.0.0.2:18762/second-mail/attachment/37.txt"
+                   },
+                   {
+                       "name":  "native-authenticated-download",
+                       "pass":  true,
+                       "observed":  {
+                                        "id":  "dl_1",
+                                        "guid":  "c7d0f818-5f47-4e09-a067-9f25ebc420e9",
+                                        "url":  "http://127.0.0.2:18762/second-mail/attachment/37.txt",
+                                        "suggestedFilename":  "message-37.txt",
+                                        "state":  "completed",
+                                        "receivedBytes":  46,
+                                        "totalBytes":  46,
+                                        "frameId":  "E3E51F342454A6A98853A0D5DA4DE10F",
+                                        "path":  "C:\\AgentBrowser\\runtime\\build002-release-second-site-v3\\downloads\\build002-release-second-site-v3\\c7d0f818-5f47-4e09-a067-9f25ebc420e9",
+                                        "startedAtUtc":  "2026-08-12T12:39:22.1946079+00:00",
+                                        "updatedAtUtc":  "2026-08-12T12:39:22.2152201+00:00"
+                                    },
+                       "expected":  "completed dl_* with 46/46 bytes"
+                   },
+                   {
+                       "name":  "download-artifact-materialized",
+                       "pass":  true,
+                       "observed":  {
+                                        "id":  "a_1",
+                                        "type":  "download",
+                                        "path":  "X:\\AgentBrowser\\Artifacts\\build002-release-second-site-v3\\measurements\\second-site\\message-37.txt",
+                                        "size":  46,
+                                        "target":  null,
+                                        "source":  "http://127.0.0.2:18762/second-mail/attachment/37.txt",
+                                        "createdAtUtc":  "2026-08-12T12:39:22.3183328+00:00"
+                                    },
+                       "expected":  "registered 46-byte artifact at requested path"
+                   },
+                   {
+                       "name":  "attachment-bytes-exact",
+                       "pass":  true,
+                       "observed":  {
+                                        "sha256":  "BF811312D408237B0C039DEAF6A181BE7B7CDC3CD0413A532B35EF70CC6FC240",
+                                        "text":  "Second Mail attachment 37\ninvoice-evidence-37\n"
+                                    },
+                       "expected":  "Second Mail attachment 37\ninvoice-evidence-37\n"
+                   },
+                   {
+                       "name":  "semantic-compose-controls",
+                       "pass":  true,
+                       "observed":  [
+                                        "e_1",
+                                        "e_37",
+                                        "e_38",
+                                        "e_35",
+                                        "e_36"
+                                    ],
+                       "expected":  "five semantic e_* compose controls"
+                   },
+                   {
+                       "name":  "rich-text-send",
+                       "pass":  true,
+                       "observed":  {
+                                        "composeId":  "e_1",
+                                        "toId":  "e_37",
+                                        "subjectId":  "e_38",
+                                        "bodyId":  "e_35",
+                                        "sendId":  "e_36",
+                                        "sent":  {
+                                                     "to":  "recipient@example.test",
+                                                     "subject":  "Second-site deterministic message",
+                                                     "body":  "Rich text body from semantic contenteditable control."
+                                                 },
+                                        "composerHidden":  true
+                                    },
+                       "expected":  "exact To/Subject/Body and composer hidden after Send"
+                   },
+                   {
+                       "name":  "primary-target-preserved",
+                       "pass":  true,
+                       "observed":  {
+                                        "primary":  "t_9",
+                                        "current":  "t_9"
+                                    },
+                       "expected":  "same primary t_* after second-tab and compose workflow"
+                   }
+               ],
+    "artifacts":  {
+                      "precondition":  "X:\\AgentBrowser\\Artifacts\\build002-release-second-site-v3\\measurements\\precondition.json",
+                      "browserWorkflow":  "X:\\AgentBrowser\\Artifacts\\build002-release-second-site-v3\\measurements\\second-site\\browser-workflow.json",
+                      "download":  "X:\\AgentBrowser\\Artifacts\\build002-release-second-site-v3\\measurements\\second-site\\attachment-download.json",
+                      "material":  "X:\\AgentBrowser\\Artifacts\\build002-release-second-site-v3\\measurements\\second-site\\message-37.txt",
+                      "adjudication":  "X:\\AgentBrowser\\Artifacts\\build002-release-second-site-v3\\measurements\\second-site\\second-site-controlled.json"
+                  }
+}

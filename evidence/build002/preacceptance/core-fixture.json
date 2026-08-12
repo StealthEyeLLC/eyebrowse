@@ -1,0 +1,388 @@
+﻿{
+    "runAtUtc":  "\/Date(1786540167901)\/",
+    "passed":  26,
+    "failed":  0,
+    "checks":  [
+                   {
+                       "name":  "isolated-profile",
+                       "pass":  true,
+                       "expected":  "build002-broad-stale-final",
+                       "observed":  "build002-broad-stale-final"
+                   },
+                   {
+                       "name":  "isolated-pipe",
+                       "pass":  true,
+                       "expected":  "eyebrowse-build002-broad-stale-final",
+                       "observed":  "eyebrowse-build002-broad-stale-final"
+                   },
+                   {
+                       "name":  "context-current-target",
+                       "pass":  true,
+                       "expected":  "exact active fixture target",
+                       "observed":  {
+                                        "Target":  "t_5",
+                                        "Document":  "d_1",
+                                        "Lifecycle":  "active",
+                                        "Url":  "http://127.0.0.1:18762/identity",
+                                        "Origin":  "http://127.0.0.1:18762",
+                                        "Title":  "Identity Fixture",
+                                        "CanonicalUrl":  "http://127.0.0.1:18762/identity",
+                                        "Focus":  null,
+                                        "SelectedConcept":  null,
+                                        "Regions":  [
+
+                                                    ],
+                                        "AvailableProviders":  [
+                                                                   "target",
+                                                                   "runtime",
+                                                                   "dom",
+                                                                   "accessibility",
+                                                                   "network",
+                                                                   "agent-bridge",
+                                                                   "apc",
+                                                                   "raw-cdp"
+                                                               ],
+                                        "Ambiguous":  false,
+                                        "AmbiguityReason":  null
+                                    }
+                   },
+                   {
+                       "name":  "replace-one-resolved-once",
+                       "pass":  true,
+                       "expected":  "1",
+                       "observed":  1
+                   },
+                   {
+                       "name":  "unique-semantic-rebound",
+                       "pass":  true,
+                       "expected":  "rebound with increased incarnation",
+                       "observed":  {
+                                        "Id":  "e_2",
+                                        "Outcome":  "rebound",
+                                        "Incarnation":  2,
+                                        "Target":  "t_5",
+                                        "Document":  "d_1",
+                                        "BackendNodeId":  29,
+                                        "Candidates":  null,
+                                        "Reason":  "Current live binding."
+                                    }
+                   },
+                   {
+                       "name":  "replace-two-resolved-once-before-split",
+                       "pass":  true,
+                       "expected":  "1",
+                       "observed":  1
+                   },
+                   {
+                       "name":  "ambiguous-split-abstention",
+                       "pass":  true,
+                       "expected":  "ambiguous with \u003e=2 candidates",
+                       "observed":  {
+                                        "Id":  "e_3",
+                                        "Outcome":  "ambiguous",
+                                        "Incarnation":  1,
+                                        "Target":  "t_5",
+                                        "Document":  "d_1",
+                                        "BackendNodeId":  null,
+                                        "Candidates":  [
+                                                           "e_4",
+                                                           "e_5"
+                                                       ],
+                                        "Reason":  "Multiple plausible successors remain."
+                                    }
+                   },
+                   {
+                       "name":  "spa-document-continuity",
+                       "pass":  true,
+                       "expected":  "same d_* with #a route",
+                       "observed":  {
+                                        "before":  "d_2",
+                                        "after":  "d_2",
+                                        "url":  "http://127.0.0.1:18762/spa#a"
+                                    }
+                   },
+                   {
+                       "name":  "bfcache-document-restored",
+                       "pass":  true,
+                       "expected":  "A d_* restored; B has different d_*",
+                       "observed":  {
+                                        "a":  "d_3",
+                                        "b":  "d_4",
+                                        "restored":  "d_3"
+                                    }
+                   },
+                   {
+                       "name":  "bfcache-heap-restored",
+                       "pass":  true,
+                       "expected":  "same heap nonce",
+                       "observed":  {
+                                        "before":  "792b1739-4a28-43ff-9889-9ff5dd7d8fa7",
+                                        "after":  "792b1739-4a28-43ff-9889-9ff5dd7d8fa7"
+                                    }
+                   },
+                   {
+                       "name":  "runtime-tools-discovered",
+                       "pass":  true,
+                       "expected":  "increment and get-node",
+                       "observed":  [
+                                        "increment",
+                                        "get-node"
+                                    ]
+                   },
+                   {
+                       "name":  "runtime-tool-executes",
+                       "pass":  true,
+                       "expected":  "value=3",
+                       "observed":  {
+                                        "Target":  "t_8",
+                                        "Document":  "d_5",
+                                        "Name":  "increment",
+                                        "Value":  {
+                                                      "value":  3
+                                                  },
+                                        "Element":  null,
+                                        "BackendNodeId":  null,
+                                        "Type":  "object",
+                                        "Description":  "Object"
+                                    }
+                   },
+                   {
+                       "name":  "runtime-tool-dom-correlates",
+                       "pass":  true,
+                       "expected":  "existing e_* + backend node",
+                       "observed":  {
+                                        "Target":  "t_8",
+                                        "Document":  "d_5",
+                                        "Name":  "get-node",
+                                        "Value":  null,
+                                        "Element":  "e_10",
+                                        "BackendNodeId":  11,
+                                        "Type":  "node",
+                                        "Description":  "button#runtime-node"
+                                    }
+                   },
+                   {
+                       "name":  "runtime-tools-document-scoped",
+                       "pass":  true,
+                       "expected":  "0 after navigation",
+                       "observed":  0
+                   },
+                   {
+                       "name":  "form-semantic-resolution",
+                       "pass":  true,
+                       "expected":  "one semantic object for each field",
+                       "observed":  {
+                                        "name":  1,
+                                        "role":  1,
+                                        "enabled":  1,
+                                        "submit":  1
+                                    }
+                   },
+                   {
+                       "name":  "form-state-correct",
+                       "pass":  true,
+                       "expected":  "submitted semantic values",
+                       "observed":  {
+                                        "name":  "Build 002",
+                                        "role":  "Operator",
+                                        "enabled":  true,
+                                        "notes":  "",
+                                        "file":  null
+                                    }
+                   },
+                   {
+                       "name":  "download-begin-observed",
+                       "pass":  true,
+                       "expected":  "new browser download",
+                       "observed":  {
+                                        "Id":  "dl_1",
+                                        "Guid":  "90b4b7ab-cc60-4527-9b11-555a5c803b5d",
+                                        "Url":  "http://127.0.0.1:18762/download/test.txt",
+                                        "SuggestedFilename":  "fixture.txt",
+                                        "State":  "completed",
+                                        "ReceivedBytes":  51,
+                                        "TotalBytes":  51,
+                                        "FrameId":  "10A527624288C83D4956C6D991DF0531",
+                                        "Path":  "C:\\AgentBrowser\\runtime\\build002-broad-stale-final\\downloads\\build002-broad-stale-final\\90b4b7ab-cc60-4527-9b11-555a5c803b5d",
+                                        "StartedAtUtc":  "2026-08-12T13:09:24.0446146+00:00",
+                                        "UpdatedAtUtc":  "2026-08-12T13:09:24.1054492+00:00"
+                                    }
+                   },
+                   {
+                       "name":  "download-completes",
+                       "pass":  true,
+                       "expected":  "completed",
+                       "observed":  "completed"
+                   },
+                   {
+                       "name":  "download-artifact-materialized",
+                       "pass":  true,
+                       "expected":  "material file exists",
+                       "observed":  {
+                                        "Id":  "a_1",
+                                        "Type":  "download",
+                                        "Path":  "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\saved-fixture.txt",
+                                        "Size":  51,
+                                        "Target":  null,
+                                        "Source":  "http://127.0.0.1:18762/download/test.txt",
+                                        "CreatedAtUtc":  "2026-08-12T13:09:24.1687965+00:00"
+                                    }
+                   },
+                   {
+                       "name":  "browser-screenshot-artifact",
+                       "pass":  true,
+                       "expected":  "PNG artifact exists",
+                       "observed":  "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\forms.png"
+                   },
+                   {
+                       "name":  "performance-metrics-on-demand",
+                       "pass":  true,
+                       "expected":  "\u003e0 metrics",
+                       "observed":  36
+                   },
+                   {
+                       "name":  "offscreen-data-lens",
+                       "pass":  true,
+                       "expected":  "5000 application records, only 40 rendered, no scroll",
+                       "observed":  {
+                                        "total":  5000,
+                                        "group3":  294,
+                                        "rendered":  40,
+                                        "scrollY":  0
+                                    }
+                   },
+                   {
+                       "name":  "cross-origin-frame-visible-to-target-census",
+                       "pass":  true,
+                       "expected":  "\u003e=1 iframe/cross-origin child target",
+                       "observed":  1
+                   },
+                   {
+                       "name":  "webmcp-headless-observation-recorded",
+                       "pass":  true,
+                       "expected":  "explicit registered/unavailable state",
+                       "observed":  "webmcp-registered"
+                   },
+                   {
+                       "name":  "scale-100-targets-created",
+                       "pass":  true,
+                       "expected":  "100",
+                       "observed":  100
+                   },
+                   {
+                       "name":  "scale-lazy-zero-deep-activation-before-observe",
+                       "pass":  true,
+                       "expected":  "0 of the 100 created targets hot/attached",
+                       "observed":  0
+                   }
+               ],
+    "details":  {
+                    "browser":  {
+                                    "ProfileName":  "build002-broad-stale-final",
+                                    "UserDataDir":  "C:\\AgentBrowser\\Profiles\\build002-broad-stale-final",
+                                    "Port":  56402,
+                                    "BrowserId":  "70eb05af-ead3-4e32-b522-4b9fe6a88937",
+                                    "BrowserVersion":  "Chrome/151.0.7922.47",
+                                    "ProtocolVersion":  "1.3",
+                                    "pipe":  "eyebrowse-build002-broad-stale-final",
+                                    "artifactRoot":  "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final",
+                                    "downloadRoot":  "X:\\AgentBrowser\\Artifacts\\build002-broad-stale-final\\downloads",
+                                    "kernelPid":  111960
+                                },
+                    "oopifTargets":  [
+                                         {
+                                             "Id":  "t_12",
+                                             "TargetId":  "461A655EDDD0143039B9B7D597E5C9E7",
+                                             "Type":  "iframe",
+                                             "Title":  "http://localhost:18762/oopif-child",
+                                             "Url":  "http://localhost:18762/oopif-child",
+                                             "Attached":  false,
+                                             "OpenerId":  null,
+                                             "Cognition":  "cold",
+                                             "Lifecycle":  "unknown"
+                                         }
+                                     ],
+                    "webmcp":  {
+                                   "pageStatus":  "webmcp-registered",
+                                   "tools":  [
+                                                 {
+                                                     "Target":  "t_13",
+                                                     "FrameId":  "409DA2857CA50B7F3B85B139E3C0B06C",
+                                                     "Name":  "add_item",
+                                                     "Description":  "Add an item",
+                                                     "InputSchema":  {
+                                                                         "type":  "object",
+                                                                         "properties":  {
+                                                                                            "value":  {
+                                                                                                          "type":  "string"
+                                                                                                      }
+                                                                                        },
+                                                                         "required":  [
+                                                                                          "value"
+                                                                                      ]
+                                                                     },
+                                                     "Annotations":  null,
+                                                     "BackendNodeId":  null
+                                                 },
+                                                 {
+                                                     "Target":  "t_13",
+                                                     "FrameId":  "409DA2857CA50B7F3B85B139E3C0B06C",
+                                                     "Name":  "filter_items",
+                                                     "Description":  "Filter visible fixture items",
+                                                     "InputSchema":  {
+                                                                         "type":  "object",
+                                                                         "properties":  {
+                                                                                            "prefix":  {
+                                                                                                           "type":  "string"
+                                                                                                       }
+                                                                                        },
+                                                                         "required":  [
+                                                                                          "prefix"
+                                                                                      ]
+                                                                     },
+                                                     "Annotations":  null,
+                                                     "BackendNodeId":  null
+                                                 },
+                                                 {
+                                                     "Target":  "t_13",
+                                                     "FrameId":  "409DA2857CA50B7F3B85B139E3C0B06C",
+                                                     "Name":  "search_items",
+                                                     "Description":  "Search fixture items",
+                                                     "InputSchema":  {
+                                                                         "type":  "object",
+                                                                         "properties":  {
+                                                                                            "query":  {
+                                                                                                          "type":  "string"
+                                                                                                      }
+                                                                                        },
+                                                                         "required":  [
+                                                                                          "query"
+                                                                                      ]
+                                                                     },
+                                                     "Annotations":  null,
+                                                     "BackendNodeId":  null
+                                                 },
+                                                 {
+                                                     "Target":  "t_13",
+                                                     "FrameId":  "409DA2857CA50B7F3B85B139E3C0B06C",
+                                                     "Name":  "submit",
+                                                     "Description":  "Submit current query",
+                                                     "InputSchema":  {
+                                                                         "type":  "object"
+                                                                     },
+                                                     "Annotations":  null,
+                                                     "BackendNodeId":  null
+                                                 }
+                                             ]
+                               },
+                    "scale":  {
+                                  "created":  100,
+                                  "elapsedMs":  2766,
+                                  "attachedOrNonCold":  0,
+                                  "chromeWorkingSetBefore":  34017280,
+                                  "chromeWorkingSetAfter":  58925056,
+                                  "chromeCpuSecondsBefore":  0.03125,
+                                  "chromeCpuSecondsAfter":  0.0625
+                              }
+                }
+}

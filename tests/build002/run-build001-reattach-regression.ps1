@@ -2,6 +2,7 @@ param(
   [string]$KernelDll = 'X:\CODEeye\Worktrees\eyebrowse-build002-skill-plane\src\AgentBrowser.Kernel\bin\Release\net10.0\AgentBrowser.Kernel.dll',
   [string]$NodeExe = 'C:\AgentBrowser\tools\node-v24.18.1-win-x64\node.exe',
   [string]$FixtureBase = 'http://127.0.0.1:18762',
+  [string]$ChromePath = 'X:\CODEeye\Tools\ChromeForTesting\151.0.7922.47\expanded\chrome-win64\chrome.exe',
   [string]$Profile = ('build002-reattach-' + [Guid]::NewGuid().ToString('N').Substring(0,12)),
   [switch]$KeepSubject
 )
@@ -41,6 +42,7 @@ function Write-Launcher([string]$Tag) {
     "set `"EYEBROWSE_ARTIFACT_ROOT=$artifactRoot`"",
     "set `"EYEBROWSE_DOWNLOAD_ROOT=$artifactRoot\downloads`"",
     "set `"EYEBROWSE_EXTENSION_PATH=$extensionPath`"",
+    "set `"EYEBROWSE_CHROME_PATH=$ChromePath`"",
     'set "EYEBROWSE_LIMIT_EXTENSIONS=0"',
     'set "EYEBROWSE_HEADLESS=1"',
     'set "EYEBROWSE_CHROME_ARGS_JSON=["--enable-experimental-web-platform-features"]"',

@@ -1,0 +1,324 @@
+{
+    "ok":  true,
+    "runAtUtc":  "2026-08-12T13:13:34.9247051+00:00",
+    "pipe":  "eyebrowse-build002-horizontal-stale-accept",
+    "fixturePid":  86200,
+    "checkCount":  11,
+    "passed":  11,
+    "failed":  0,
+    "checks":  [
+                   {
+                       "name":  "export-markdown-program",
+                       "pass":  true,
+                       "observed":  {
+                                        "ok":  true,
+                                        "target":  "t_5",
+                                        "format":  "markdown",
+                                        "destination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\horizontal-page.md",
+                                        "chars":  233,
+                                        "sourceUrl":  "http://127.0.0.1:18762/horizontal/export"
+                                    },
+                       "expected":  "markdown ok"
+                   },
+                   {
+                       "name":  "export-markdown-material",
+                       "pass":  true,
+                       "observed":  {
+                                        "chars":  233,
+                                        "sha256":  "4A30AA0C7BB1C2CEF1F5C26542CE9F49FD6139900006C9668FEDC661E2841832"
+                                    },
+                       "expected":  "useful semantic Markdown, not HTML dump"
+                   },
+                   {
+                       "name":  "export-csv-program",
+                       "pass":  true,
+                       "observed":  {
+                                        "ok":  true,
+                                        "target":  "t_5",
+                                        "format":  "csv",
+                                        "destination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\horizontal-table.csv",
+                                        "rows":  4
+                                    },
+                       "expected":  "4 table rows including header"
+                   },
+                   {
+                       "name":  "export-csv-material",
+                       "pass":  true,
+                       "observed":  {
+                                        "bytes":  64,
+                                        "sha256":  "A11EC2AE2B379AE2BA6065BB1F8A6DD04FCFF72D01F3B0C99C359EED2FBAE5E7"
+                                    },
+                       "expected":  "exact fixture table CSV"
+                   },
+                   {
+                       "name":  "download-text",
+                       "pass":  true,
+                       "observed":  {
+                                        "downloadId":  "dl_1",
+                                        "state":  "completed",
+                                        "browserPath":  "C:\\AgentBrowser\\runtime\\build002-horizontal-stale-accept\\downloads\\build002-horizontal-stale-accept\\77e5eb10-0a5d-47f7-8954-6d58f0938822",
+                                        "destination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-note.txt",
+                                        "bytes":  42,
+                                        "sha256":  "5AE58B002305064D1F516467A4C6ABD5DDE5F436638AA948A5FF976950259BEA",
+                                        "authoritativeSha256":  "5AE58B002305064D1F516467A4C6ABD5DDE5F436638AA948A5FF976950259BEA",
+                                        "artifact":  {
+                                                         "id":  "a_1",
+                                                         "type":  "download",
+                                                         "path":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-note.txt",
+                                                         "size":  42,
+                                                         "target":  null,
+                                                         "source":  "http://127.0.0.1:18762/horizontal/download/text.txt",
+                                                         "createdAtUtc":  "2026-08-12T13:13:31.64773+00:00"
+                                                     }
+                                    },
+                       "expected":  "completed native download, material bytes exact"
+                   },
+                   {
+                       "name":  "download-csv",
+                       "pass":  true,
+                       "observed":  {
+                                        "downloadId":  "dl_2",
+                                        "state":  "completed",
+                                        "browserPath":  "C:\\AgentBrowser\\runtime\\build002-horizontal-stale-accept\\downloads\\build002-horizontal-stale-accept\\faabc68c-0ea3-4850-b9c5-865b72530014",
+                                        "destination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-data.csv",
+                                        "bytes":  34,
+                                        "sha256":  "EC6C5ACF180CF7F8FA046CF00040B891041378B88B5DFDC36C1AC8358E83FDB0",
+                                        "authoritativeSha256":  "EC6C5ACF180CF7F8FA046CF00040B891041378B88B5DFDC36C1AC8358E83FDB0",
+                                        "artifact":  {
+                                                         "id":  "a_2",
+                                                         "type":  "download",
+                                                         "path":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-data.csv",
+                                                         "size":  34,
+                                                         "target":  null,
+                                                         "source":  "http://127.0.0.1:18762/horizontal/download/data.csv",
+                                                         "createdAtUtc":  "2026-08-12T13:13:31.8888823+00:00"
+                                                     }
+                                    },
+                       "expected":  "completed native download, material bytes exact"
+                   },
+                   {
+                       "name":  "download-pdf",
+                       "pass":  true,
+                       "observed":  {
+                                        "downloadId":  "dl_3",
+                                        "state":  "completed",
+                                        "browserPath":  "C:\\AgentBrowser\\runtime\\build002-horizontal-stale-accept\\downloads\\build002-horizontal-stale-accept\\5d0bf56b-c3bf-46a1-b7ed-2e4a94c59483",
+                                        "destination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-report.pdf",
+                                        "bytes":  457,
+                                        "sha256":  "550EFC02C5581E8544DAF42CBA9309EE2BE8B3523CFA66DBD2CBBD3D0C75ABD6",
+                                        "authoritativeSha256":  "550EFC02C5581E8544DAF42CBA9309EE2BE8B3523CFA66DBD2CBBD3D0C75ABD6",
+                                        "artifact":  {
+                                                         "id":  "a_3",
+                                                         "type":  "download",
+                                                         "path":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-report.pdf",
+                                                         "size":  457,
+                                                         "target":  null,
+                                                         "source":  "http://127.0.0.1:18762/horizontal/download/report.pdf",
+                                                         "createdAtUtc":  "2026-08-12T13:13:32.1243051+00:00"
+                                                     }
+                                    },
+                       "expected":  "completed native download, material bytes exact"
+                   },
+                   {
+                       "name":  "form-semantic-identities",
+                       "pass":  true,
+                       "observed":  [
+                                        {
+                                            "id":  "e_8",
+                                            "role":  "textbox",
+                                            "name":  "Name"
+                                        },
+                                        {
+                                            "id":  "e_9",
+                                            "role":  "combobox",
+                                            "name":  "Role"
+                                        },
+                                        {
+                                            "id":  "e_6",
+                                            "role":  "checkbox",
+                                            "name":  "Enabled"
+                                        },
+                                        {
+                                            "id":  "e_10",
+                                            "role":  "textbox",
+                                            "name":  "Notes"
+                                        },
+                                        {
+                                            "id":  "e_7",
+                                            "role":  "button",
+                                            "name":  "Submit"
+                                        }
+                                    ],
+                       "expected":  "all fields mapped to e_*"
+                   },
+                   {
+                       "name":  "forms-batch-submit",
+                       "pass":  true,
+                       "observed":  {
+                                        "program":  {
+                                                        "ok":  true,
+                                                        "fields":  4,
+                                                        "submitted":  true,
+                                                        "results":  [
+                                                                        {
+                                                                            "id":  "e_8",
+                                                                            "kind":  "fill",
+                                                                            "result":  {
+                                                                                           "id":  "e_8",
+                                                                                           "cursor":  10,
+                                                                                           "target":  "t_7",
+                                                                                           "document":  "d_3"
+                                                                                       }
+                                                                        },
+                                                                        {
+                                                                            "id":  "e_9",
+                                                                            "kind":  "select",
+                                                                            "result":  {
+                                                                                           "result":  {
+                                                                                                          "type":  "object",
+                                                                                                          "value":  {
+                                                                                                                        "value":  "Researcher",
+                                                                                                                        "selected":  [
+                                                                                                                                         {
+                                                                                                                                             "value":  "Researcher",
+                                                                                                                                             "text":  "Researcher"
+                                                                                                                                         }
+                                                                                                                                     ]
+                                                                                                                    }
+                                                                                                      }
+                                                                                       }
+                                                                        },
+                                                                        {
+                                                                            "id":  "e_6",
+                                                                            "kind":  "check",
+                                                                            "result":  {
+                                                                                           "result":  {
+                                                                                                          "type":  "object",
+                                                                                                          "value":  {
+                                                                                                                        "checked":  true
+                                                                                                                    }
+                                                                                                      }
+                                                                                       }
+                                                                        },
+                                                                        {
+                                                                            "id":  "e_10",
+                                                                            "kind":  "fill",
+                                                                            "result":  {
+                                                                                           "id":  "e_10",
+                                                                                           "cursor":  11,
+                                                                                           "target":  "t_7",
+                                                                                           "document":  "d_3"
+                                                                                       }
+                                                                        }
+                                                                    ],
+                                                        "submitResult":  {
+                                                                             "id":  "e_7",
+                                                                             "cursor":  12,
+                                                                             "target":  "t_7",
+                                                                             "document":  "d_3"
+                                                                         }
+                                                    },
+                                        "submitted":  {
+                                                          "name":  "Ada Horizontal",
+                                                          "role":  "Researcher",
+                                                          "enabled":  true,
+                                                          "notes":  "Batch note",
+                                                          "file":  null
+                                                      }
+                                    },
+                       "expected":  "4 semantic fields + submit exact"
+                   },
+                   {
+                       "name":  "multi-tab-preserve-primary",
+                       "pass":  true,
+                       "observed":  {
+                                        "primary":  "t_8",
+                                        "before":  "t_8",
+                                        "after":  "t_8",
+                                        "tabs":  [
+                                                     {
+                                                         "target":  "t_8",
+                                                         "url":  "http://127.0.0.1:18762/horizontal/export?primary=1",
+                                                         "title":  "Horizontal Export Fixture",
+                                                         "text":  "Horizontal export fixture\n\nThis fixture proves generic page export and table extraction without GitHub-specific logic.\n\nInventory\nFixture Inventory\nName\tCount\tStatus\nalpha\t3\tready\nbeta\t5\tqueued\ngamma\t8\tready\n\nDownload resources"
+                                                     },
+                                                     {
+                                                         "target":  "t_9",
+                                                         "url":  "http://127.0.0.1:18762/forms?secondary=1",
+                                                         "title":  "Forms Fixture",
+                                                         "text":  "Forms\nName \nRole \nEngineer\nResearcher\nOperator\n Enabled\nNotes\nFile \nSubmit\nDownload fixture"
+                                                     },
+                                                     {
+                                                         "target":  "t_10",
+                                                         "url":  "http://127.0.0.1:18762/virtual?third=1",
+                                                         "title":  "Virtualized Collection",
+                                                         "text":  "Virtualized collection\nrecord-0001 group=0 value=0\nrecord-0002 group=1 value=13\nrecord-0003 group=2 value=26\nrecord-0004 group=3 value=39\nrecord-0005 group=4 value=52\nrecord-0006 group=5 value=65\nrecord-0007 group=6 value=78\nrecord-0008 group=7 value=91\nrecord-0009 group=8 value=104\nrecord-0010 group=9 value=117\nrecord-0011 group=10 value=130\nrecord-0012 group=11 value=143\nrecord-0013 group=12 value=156\nrecord-0014 group=13 value=169\nrecord-0015 group=14 value=182\nrecord-0016 group=15 value=195\nrecord-0017 group=16 value=208\nrecord-0018 group=0 value=221\nrecord-0019 group=1 value=234\nrecord-0020 group=2 value=247\nrecord-0021 group=3 value=260\nrecord-0022 group=4 value=273\nrecord-0023 group=5 value=286\nrecord-0024 group=6 value=299\nrecord-0025 group=7 value=312\nrecord-0026 group=8 value=325\nrecord-0027 group=9 value=338\nrecord-0028 group=10 value=351\nrecord-0029 group=11 value=364\nrecord-0030 group=12 value=377\nrecord-0031 group=13 value=390\nrecord-0032 group=14 value=403\nrecord-0033 group=15 value=416\nrecord-0034 group=16 value=429\nrecord-0035 group=0 value=442\nrecord-0036 group=1 value=455\nrecord-0037 group=2 value=468\nrecord-0038 group=3 value=481\nrecord-0039 group=4 value=494\nrecord-0040 group=5 value=507\nshowing 40 of 5000"
+                                                     }
+                                                 ]
+                                    },
+                       "expected":  "3 targets compared, primary remains current"
+                   },
+                   {
+                       "name":  "bounded-pagination",
+                       "pass":  true,
+                       "observed":  {
+                                        "pages":  3,
+                                        "stopped":  "end",
+                                        "values":  [
+                                                       "p1-a",
+                                                       "p1-b",
+                                                       "p2-a",
+                                                       "p2-b",
+                                                       "p3-a",
+                                                       "p3-b"
+                                                   ],
+                                        "finalUrl":  "http://127.0.0.1:18762/horizontal/page/3"
+                                    },
+                       "expected":  "3 pages, 6 values, explicit end"
+                   }
+               ],
+    "programs":  {
+                     "exportMarkdown":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\export-markdown.json",
+                     "exportCsv":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\export-csv.json",
+                     "forms":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\forms-batch.json",
+                     "multiTab":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\multi-tab.json",
+                     "pagination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\pagination.json"
+                 },
+    "downloads":  [
+                      {
+                          "name":  "text",
+                          "program":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\download-text.json",
+                          "downloadId":  "dl_1",
+                          "browserPath":  "C:\\AgentBrowser\\runtime\\build002-horizontal-stale-accept\\downloads\\build002-horizontal-stale-accept\\77e5eb10-0a5d-47f7-8954-6d58f0938822",
+                          "destination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-note.txt",
+                          "authoritative":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\authoritative\\fixture-note.txt",
+                          "sha256":  "5AE58B002305064D1F516467A4C6ABD5DDE5F436638AA948A5FF976950259BEA",
+                          "bytes":  42
+                      },
+                      {
+                          "name":  "csv",
+                          "program":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\download-csv.json",
+                          "downloadId":  "dl_2",
+                          "browserPath":  "C:\\AgentBrowser\\runtime\\build002-horizontal-stale-accept\\downloads\\build002-horizontal-stale-accept\\faabc68c-0ea3-4850-b9c5-865b72530014",
+                          "destination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-data.csv",
+                          "authoritative":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\authoritative\\fixture-data.csv",
+                          "sha256":  "EC6C5ACF180CF7F8FA046CF00040B891041378B88B5DFDC36C1AC8358E83FDB0",
+                          "bytes":  34
+                      },
+                      {
+                          "name":  "pdf",
+                          "program":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\download-pdf.json",
+                          "downloadId":  "dl_3",
+                          "browserPath":  "C:\\AgentBrowser\\runtime\\build002-horizontal-stale-accept\\downloads\\build002-horizontal-stale-accept\\5d0bf56b-c3bf-46a1-b7ed-2e4a94c59483",
+                          "destination":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\downloads\\fixture-report.pdf",
+                          "authoritative":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\authoritative\\fixture-report.pdf",
+                          "sha256":  "550EFC02C5581E8544DAF42CBA9309EE2BE8B3523CFA66DBD2CBBD3D0C75ABD6",
+                          "bytes":  457
+                      }
+                  ],
+    "artifacts":  {
+                      "markdown":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\horizontal-page.md",
+                      "csv":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final\\horizontal-table.csv",
+                      "root":  "X:\\AgentBrowser\\Artifacts\\build002-horizontal-stale-accept\\measurements\\horizontal-final"
+                  }
+}
