@@ -8,5 +8,8 @@
   },
   "scripts": {
     "run": "node src/run.mjs"
+  },
+  "dependencies": {
+    "lighthouse": "13.4.1"
   }
 }

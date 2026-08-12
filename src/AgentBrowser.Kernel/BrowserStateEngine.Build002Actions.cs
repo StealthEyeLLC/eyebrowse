@@ -211,6 +211,29 @@ internal sealed partial class BrowserStateEngine
 
     private async Task<(double X, double Y)> ElementCenterAsync(TargetState state, SemanticElement element, CancellationToken cancellationToken)
     {
+        try
+        {
+            await _cdp.SendAsync("DOM.scrollIntoViewIfNeeded", new { backendNodeId = element.BackendNodeId }, state.SessionId, cancellationToken);
+        }
+        catch (AgentBrowser.Cdp.CdpException)
+        {
+            var objectId = await ResolveRuntimeObjectAsync(state, element, cancellationToken);
+            try
+            {
+                await _cdp.SendAsync("Runtime.callFunctionOn", new
+                {
+                    objectId,
+                    functionDeclaration = "function(){this.scrollIntoView({block:'center',inline:'center'});return true;}",
+                    returnByValue = true,
+                    userGesture = false
+                }, state.SessionId, cancellationToken);
+            }
+            finally
+            {
+                await ReleaseObjectAsync(state, objectId);
+            }
+        }
+
         var quads = await _cdp.SendAsync("DOM.getContentQuads", new { backendNodeId = element.BackendNodeId }, state.SessionId, cancellationToken);
         var firstQuad = quads.GetProperty("quads").EnumerateArray().FirstOrDefault();
         if (firstQuad.ValueKind != JsonValueKind.Array) throw new InvalidOperationException($"Element {element.Id} has no content quad.");

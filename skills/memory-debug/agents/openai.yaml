@@ -1,0 +1,3 @@
+interface:
+  display_name: "Memory Debug"
+  short_description: "Find browser memory leaks from heap artifacts and local analysis."

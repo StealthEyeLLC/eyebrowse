@@ -1,0 +1,3 @@
+interface:
+  display_name: "Artifact Download"
+  short_description: "Download browser resources and attachments."

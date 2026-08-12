@@ -1,0 +1,3 @@
+interface:
+  display_name: "Performance Debug"
+  short_description: "Measure and diagnose browser performance."

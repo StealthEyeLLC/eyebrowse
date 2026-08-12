@@ -1,0 +1,3 @@
+interface:
+  display_name: "Multi Tab"
+  short_description: "Coordinate persistent browser tabs safely."

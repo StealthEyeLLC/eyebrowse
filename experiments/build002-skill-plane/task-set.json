@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "experiment": "eyebrowse-build002-skill-plane-control-treatment",
+  "status": "prospective-frozen-before-first-subject",
+  "frozenDate": "2026-08-12",
+  "conditions": {
+    "control": "fresh ChatGPT + identical eyeBROWSE Build 002 candidate + identical Program Host + no Build 002 site/operation Skills",
+    "treatment": "fresh ChatGPT + identical eyeBROWSE Build 002 candidate + identical Program Host + installed Build 002 Skills",
+    "hiddenCapabilityDifferenceAllowed": false
+  },
+  "installedTreatmentSkills": [
+    "accessibility-debug", "agent-readiness", "artifact-download", "current-page-export", "extension-debug",
+    "eyebrowse-operator", "forms", "github", "gmail-web", "memory-debug", "multi-tab", "network-debug",
+    "performance-debug", "runtime-tools", "web-debug", "webmcp"
+  ],
+  "scoring": {
+    "treatmentMinimumSuccesses": 10,
+    "minimumSuccessImprovementOverControl": 2,
+    "medianRoundTripReductionMinimumFraction": 0.25,
+    "treatmentWrongObjectActionsMaximum": 0,
+    "relevantSkillActivationRecallMinimum": 0.80,
+    "perSkillFalsePositiveTaskRateMaximum": 0.10,
+    "minimumUsefulSkillsOnMultiSkillTask": 2,
+    "minimumMeaningfulOperationsInOneReasoningInvocation": 10
+  },
+  "tasks": [
+    {
+      "id": "T01", "category": "github-context", "startUrl": "https://github.com/cli/cli",
+      "startState": "One page target at the repository root; no repository identifier is repeated outside visible page state.",
+      "mutationFixtureId": null,
+      "prompt": "Copy this repository to X:\\SkillPlaneTest\\subjects\\T01\\repo.",
+      "expectedTruth": "browser-visible GitHub context resolves repository/default ref; true working-copy acquisition is engineering-provider/CODEeye truth",
+      "requiredRelevantSkills": ["github"], "allowedBackgroundSkills": ["eyebrowse-operator"],
+      "successCriteria": "Correct repository and default ref are resolved without asking for visible identifiers, and a genuine local Git working copy is created at the exact destination through the engineering substrate."
+    },
+    {
+      "id": "T02", "category": "github-context", "startUrl": "https://github.com/cli/cli/blob/trunk/README.md",
+      "startState": "One page target on the README blob at trunk.", "mutationFixtureId": null,
+      "prompt": "Save this file to X:\\SkillPlaneTest\\subjects\\T02\\current.md.",
+      "expectedTruth": "GitHub raw/provider source bytes for the current blob, with repository/ref/path resolved from current context",
+      "requiredRelevantSkills": ["github"], "allowedBackgroundSkills": ["eyebrowse-operator"],
+      "successCriteria": "The exact current README source is saved, not rendered GitHub chrome, with repository=cli/cli, ref=trunk, path=README.md."
+    },
+    {
+      "id": "T03", "category": "github-context", "startUrl": "https://github.com/cli/cli/issues/997",
+      "startState": "One page target on issue 997.", "mutationFixtureId": null,
+      "prompt": "Without asking me for identifiers already on the page, tell me which repository and issue this is, and give me the issue title and current state.",
+      "expectedTruth": "GitHub provider/browser-semantic issue context",
+      "requiredRelevantSkills": ["github"], "allowedBackgroundSkills": ["eyebrowse-operator"],
+      "successCriteria": "Repository and issue number are correct and the title/state correspond to the current issue object."
+    },
+    {
+      "id": "T04", "category": "github-context", "startUrl": "https://github.com/cli/cli/pull/14007",
+      "startState": "One page target on pull request 14007.", "mutationFixtureId": null,
+      "prompt": "What repository and pull request am I looking at? Give me the base and head refs without asking me to repeat identifiers already visible here.",
+      "expectedTruth": "GitHub provider PR metadata plus current browser context",
+      "requiredRelevantSkills": ["github"], "allowedBackgroundSkills": ["eyebrowse-operator"],
+      "successCriteria": "Repository=cli/cli, PR=14007, base=trunk, and the current head ref are resolved correctly."
+    },
+    {
+      "id": "T05", "category": "github-authority-split", "startUrl": "https://github.com/cli/cli/pull/14007",
+      "startState": "One page target on pull request 14007.", "mutationFixtureId": null,
+      "prompt": "Tell me which files changed in this pull request, then save a Markdown export of what the pull request page currently shows to X:\\SkillPlaneTest\\subjects\\T05\\pr-page.md.",
+      "expectedTruth": "provider/diff truth for changed files; live browser/document truth for current page export",
+      "requiredRelevantSkills": ["github", "current-page-export"], "allowedBackgroundSkills": ["eyebrowse-operator"], "multiSkill": true,
+      "successCriteria": "Changed-file list comes from provider/diff truth and the Markdown artifact represents the live PR page; neither representation substitutes for the other."
+    },
+    {
+      "id": "T06", "category": "github-authority-split", "startUrl": "https://github.com/cli/cli/actions/runs/31587681547",
+      "startState": "One page target on failed Actions run 31587681547.", "mutationFixtureId": null,
+      "prompt": "Diagnose why the current Actions run failed. Use the failure logs or provider source of truth rather than guessing from the page, and tell me whether the repair belongs in this repository.",
+      "expectedTruth": "browser context for the current run plus GitHub provider-native job/step/log truth",
+      "requiredRelevantSkills": ["github"], "allowedBackgroundSkills": ["eyebrowse-operator", "web-debug"],
+      "successCriteria": "Correct failed run/job/step and root cause are identified from provider evidence; repair locality is classified correctly rather than inventing a repository edit."
+    },
+    {
+      "id": "T07", "category": "horizontal-forms", "startUrl": "http://127.0.0.1:18762/forms",
+      "startState": "Fresh Forms Fixture document; Name empty, Role at initial value, Enabled unchecked.", "mutationFixtureId": "forms-v1",
+      "prompt": "Fill the form with Name 'Build 002 Subject', Role 'Operator', check Enabled, and submit it.",
+      "expectedTruth": "browser semantic objects and browser actuation state",
+      "requiredRelevantSkills": ["forms"], "allowedBackgroundSkills": ["eyebrowse-operator"],
+      "successCriteria": "All three exact semantic fields are set and the intended Submit control is actuated; fixture result reflects the requested values."
+    },
+    {
+      "id": "T08", "category": "horizontal-multi-tab", "startUrl": "http://127.0.0.1:18762/forms",
+      "startState": "Primary target is Forms Fixture; a second persistent target is pre-opened at http://127.0.0.1:18762/identity; primary target/document IDs are recorded before prompt.",
+      "mutationFixtureId": "two-tab-forms-identity-v1",
+      "prompt": "Compare these two open tabs: report each title and main heading, and leave me on the tab I started on.",
+      "expectedTruth": "persistent browser target/document truth across two page targets",
+      "requiredRelevantSkills": ["multi-tab"], "allowedBackgroundSkills": ["eyebrowse-operator"],
+      "successCriteria": "Both tabs are compared correctly and the exact starting primary target/document remains current afterward."
+    },
+    {
+      "id": "T09", "category": "debugging", "startUrl": "http://127.0.0.1:18762/memory",
+      "startState": "Fresh Memory Leak Fixture document before leak exercise.", "mutationFixtureId": "memory-leak-v1",
+      "prompt": "This page leaks memory when its leak behavior is exercised repeatedly. Find evidence of the leak and identify what object or node type is being retained. Do not modify source code.",
+      "expectedTruth": "browser runtime counters plus heap-snapshot artifacts reduced locally by Program Host",
+      "requiredRelevantSkills": ["memory-debug"], "allowedBackgroundSkills": ["eyebrowse-operator", "web-debug"],
+      "successCriteria": "Measured before/after evidence demonstrates the controlled leak and identifies the retained LeakyWidget/detached widget evidence without source mutation."
+    },
+    {
+      "id": "T10", "category": "webmcp", "startUrl": "http://127.0.0.1:18762/webmcp",
+      "startState": "Fresh WebMCP Fixture with its initial registered tool set and initial item state.", "mutationFixtureId": "webmcp-v1",
+      "prompt": "Add the item 'delta', search for items containing 'ta', filter the visible items to 'delta', and submit the tool-backed form.",
+      "expectedTruth": "document-scoped WebMCP provider tool discovery/invocation and resulting live page state",
+      "requiredRelevantSkills": ["webmcp"], "allowedBackgroundSkills": ["eyebrowse-operator"],
+      "successCriteria": "The correct current WebMCP tools are discovered and invoked; delta is added, search/filter outcomes are correct, and submission completes."
+    },
+    {
+      "id": "T11", "category": "second-site", "startUrl": "https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population",
+      "startState": "One fresh page target on the public Wikipedia population-list page.", "mutationFixtureId": null,
+      "prompt": "Save the first population data table on this page to X:\\SkillPlaneTest\\subjects\\T11\\population.csv and tell me how many rows were exported.",
+      "expectedTruth": "live second-site browser table/document semantics",
+      "requiredRelevantSkills": ["current-page-export"], "allowedBackgroundSkills": ["eyebrowse-operator"],
+      "successCriteria": "A nontrivial live population table is exported as CSV to the exact path and the reported row count matches the artifact."
+    },
+    {
+      "id": "T12", "category": "negative-selection", "startUrl": "http://127.0.0.1:18762/identity",
+      "startState": "Fresh Identity Fixture document; no action has been taken.", "mutationFixtureId": "identity-v1",
+      "prompt": "Tell me the page title and the accessible name of the stable action button. Do not click or modify anything.",
+      "expectedTruth": "read-only browser semantic/document truth",
+      "requiredRelevantSkills": [], "allowedBackgroundSkills": ["eyebrowse-operator"], "negativeSelection": true,
+      "successCriteria": "Correct title and stable-button accessible name are reported with zero mutation and no irrelevant specialized Skill activation."
+    }
+  ]
+}

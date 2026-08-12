@@ -197,7 +197,7 @@ static async Task<int> ServeAsync()
     var runtime = await BrowserRuntime.StartOrAttachAsync();
     await using var cdp = await ConnectAsync(runtime);
     var protocol = await CdpDiscovery.GetProtocolSummaryAsync(runtime.Port);
-    await using var state = new BrowserStateEngine(cdp, protocol.Supports("Page.getAnnotatedPageContent"));
+    await using var state = new BrowserStateEngine(cdp, protocol);
     await state.InitializeAsync();
     var dispatcher = new KernelRpcDispatcher(runtime, cdp, state);
     var server = new PipeRpcServer(BrowserRuntime.PipeName, dispatcher);

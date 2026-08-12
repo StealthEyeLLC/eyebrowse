@@ -16,6 +16,7 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
 
     private readonly CdpClient _cdp;
     private readonly bool _apcAvailable;
+    private readonly ProtocolSummary _protocol;
     private readonly DocumentIdentityBridge _identity;
     private readonly LogicalIdStore _ids = new();
     private readonly ConcurrentDictionary<string, TargetState> _targets = new(StringComparer.Ordinal);
@@ -23,10 +24,11 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
     private long _nextRequestId;
     private long _cursor;
 
-    public BrowserStateEngine(CdpClient cdp, bool apcAvailable)
+    public BrowserStateEngine(CdpClient cdp, ProtocolSummary protocol)
     {
         _cdp = cdp;
-        _apcAvailable = apcAvailable;
+        _protocol = protocol;
+        _apcAvailable = protocol.Supports("Page.getAnnotatedPageContent");
         _identity = new DocumentIdentityBridge(cdp);
         _cdp.EventReceived += OnCdpEventAsync;
     }
@@ -118,7 +120,7 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
         if (!string.IsNullOrWhiteSpace(query.Role))
             items = items.Where(x => string.Equals(x.Role, query.Role, StringComparison.OrdinalIgnoreCase));
         if (!string.IsNullOrWhiteSpace(query.Name))
-            items = items.Where(x => string.Equals(x.Name, query.Name, StringComparison.OrdinalIgnoreCase));
+            items = items.Where(x => string.Equals(x.Name, NormalizeAxText(query.Name), StringComparison.OrdinalIgnoreCase));
         if (!string.IsNullOrWhiteSpace(query.Contains))
             items = items.Where(x =>
                 x.Name.Contains(query.Contains, StringComparison.OrdinalIgnoreCase) ||
@@ -155,18 +157,7 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
     public async Task ClickAsync(string elementId, CancellationToken cancellationToken = default)
     {
         var (state, element) = ResolveElement(elementId);
-        var quads = await _cdp.SendAsync("DOM.getContentQuads", new { backendNodeId = element.BackendNodeId }, state.SessionId, cancellationToken);
-        var firstQuad = quads.GetProperty("quads").EnumerateArray().FirstOrDefault();
-        if (firstQuad.ValueKind != JsonValueKind.Array)
-            throw new InvalidOperationException($"Element {elementId} has no clickable content quad.");
-
-        var points = firstQuad.EnumerateArray().Select(x => x.GetDouble()).ToArray();
-        if (points.Length < 8)
-            throw new InvalidOperationException($"Element {elementId} returned an invalid content quad.");
-
-        var x = (points[0] + points[2] + points[4] + points[6]) / 4d;
-        var y = (points[1] + points[3] + points[5] + points[7]) / 4d;
-
+        var (x, y) = await ElementCenterAsync(state, element, cancellationToken);
         await _cdp.SendAsync("Input.dispatchMouseEvent", new { type = "mouseMoved", x, y }, state.SessionId, cancellationToken);
         await _cdp.SendAsync("Input.dispatchMouseEvent", new { type = "mousePressed", x, y, button = "left", buttons = 1, clickCount = 1 }, state.SessionId, cancellationToken);
         await _cdp.SendAsync("Input.dispatchMouseEvent", new { type = "mouseReleased", x, y, button = "left", buttons = 0, clickCount = 1 }, state.SessionId, cancellationToken);
@@ -352,11 +343,16 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
         var frame = frameTree.GetProperty("frameTree").GetProperty("frame");
         var frameId = GetString(frame, "id");
         var loaderId = frame.TryGetProperty("loaderId", out var loader) ? loader.GetString() : null;
-        var url = GetString(frame, "url");
+        var frameUrl = GetString(frame, "url");
+        var url = await TryGetLiveLocationAsync(state, frameUrl, cancellationToken);
         var bridgeDocument = await _identity.ReadDocumentStateAsync(state.SessionId, cancellationToken);
         await RefreshBridgeLifecycleAsync(state, bridgeDocument, cancellationToken);
-        var documentKey = bridgeDocument?.DocumentToken ??
-            (!string.IsNullOrWhiteSpace(loaderId) ? loaderId! : $"{frameId}|{url}");
+        var exactDocumentKey = !string.IsNullOrWhiteSpace(bridgeDocument?.DocumentToken)
+            ? $"bridge:{bridgeDocument!.DocumentToken}"
+            : !string.IsNullOrWhiteSpace(loaderId)
+                ? $"loader:{loaderId}"
+                : null;
+        var documentKey = exactDocumentKey ?? $"fallback:{frameId}|{url}";
 
         if (!string.Equals(state.DocumentKey, documentKey, StringComparison.Ordinal))
         {
@@ -365,10 +361,19 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
             {
                 state.DocumentLogicalId = bridgeDocument!.DocumentLogicalId!;
                 _ids.ObserveExisting(state.DocumentLogicalId);
+                if (exactDocumentKey is not null)
+                    RememberExactDocumentIdentity(state, exactDocumentKey, state.DocumentLogicalId);
+            }
+            else if (exactDocumentKey is not null && state.DocumentLogicalIdsByExactKey.TryGetValue(exactDocumentKey, out var restoredDocumentId))
+            {
+                state.DocumentLogicalId = restoredDocumentId;
+                _ids.ObserveExisting(state.DocumentLogicalId);
             }
             else
             {
                 state.DocumentLogicalId = _ids.NewDocumentId();
+                if (exactDocumentKey is not null)
+                    RememberExactDocumentIdentity(state, exactDocumentKey, state.DocumentLogicalId);
                 if (bridgeDocument is not null)
                     await _identity.SetDocumentLogicalIdAsync(state.SessionId, state.DocumentLogicalId, cancellationToken);
             }
@@ -412,6 +417,32 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
             // DOMSnapshot is a provider, not a prerequisite for an AX semantic surface.
         }
 
+        var rebindingAttributes = new Dictionary<int, IReadOnlyDictionary<string, string>>();
+        var currentRebindingCandidates = new List<RebindingCandidate>();
+        foreach (var node in axNodes)
+        {
+            if (node.TryGetProperty("ignored", out var ignored) && ignored.GetBoolean())
+                continue;
+            if (!node.TryGetProperty("backendDOMNodeId", out var backendElement) || !backendElement.TryGetInt32(out var backendNodeId))
+                continue;
+            var role = AxValue(node, "role");
+            if (string.IsNullOrWhiteSpace(role) || !InteractableRoles.Contains(role))
+                continue;
+            var attributes = rebindingAttributes.TryGetValue(backendNodeId, out var cachedAttributes)
+                ? cachedAttributes
+                : await GetIdentityAttributesAsync(state, backendNodeId, cancellationToken);
+            rebindingAttributes[backendNodeId] = attributes;
+            currentRebindingCandidates.Add(new RebindingCandidate(
+                "",
+                1,
+                backendNodeId,
+                role,
+                NormalizeAxText(AxValue(node, "name")),
+                NullIfEmpty(NormalizeAxText(AxValue(node, "description"))),
+                NullIfEmpty(AxValue(node, "value")),
+                attributes));
+        }
+
         var elements = new List<SemanticElement>();
         foreach (var node in axNodes)
         {
@@ -424,12 +455,14 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
             if (string.IsNullOrWhiteSpace(role) || !InteractableRoles.Contains(role))
                 continue;
 
-            var name = AxValue(node, "name");
-            var description = NullIfEmpty(AxValue(node, "description"));
+            var name = NormalizeAxText(AxValue(node, "name"));
+            var description = NullIfEmpty(NormalizeAxText(AxValue(node, "description")));
             var value = NullIfEmpty(AxValue(node, "value"));
             var disabled = AxPropertyBool(node, "disabled");
             var focused = AxPropertyBool(node, "focused");
-            var attributes = await GetIdentityAttributesAsync(state, backendNodeId, cancellationToken);
+            var attributes = rebindingAttributes.TryGetValue(backendNodeId, out var cachedAttributes)
+                ? cachedAttributes
+                : await GetIdentityAttributesAsync(state, backendNodeId, cancellationToken);
             string elementId;
             var incarnation = 1;
             var identity = IdentityOutcomes.Exact;
@@ -450,7 +483,8 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
                 }
                 else
                 {
-                    var decision = DecideRebind(priorElements, backendNodeId, role, name, description, value, attributes, currentBackendNodeIds);
+                    var currentCandidate = currentRebindingCandidates.First(x => x.BackendNodeId == backendNodeId);
+                    var decision = DecideRebind(priorElements, currentCandidate, currentRebindingCandidates, currentBackendNodeIds);
                     if (decision.Outcome == IdentityOutcomes.Rebound && !string.IsNullOrWhiteSpace(decision.Id))
                     {
                         elementId = decision.Id!;
@@ -749,6 +783,38 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
         _ => (key, 0, null)
     };
 
+    private async Task<string> TryGetLiveLocationAsync(TargetState state, string fallback, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _cdp.SendAsync("Runtime.evaluate", new
+            {
+                expression = "location.href",
+                returnByValue = true,
+                awaitPromise = false,
+                userGesture = false
+            }, state.SessionId, cancellationToken);
+            if (TryRemoteValue(result, out var value) && value.ValueKind == JsonValueKind.String)
+                return value.GetString() ?? fallback;
+        }
+        catch (CdpException)
+        {
+        }
+        return fallback;
+    }
+
+    private static string NormalizeAxText(string value) => value?.Trim() ?? "";
+
+    private static void RememberExactDocumentIdentity(TargetState state, string exactKey, string logicalId)
+    {
+        if (!state.DocumentLogicalIdsByExactKey.ContainsKey(exactKey) && state.DocumentLogicalIdsByExactKey.Count >= 64)
+        {
+            var evict = state.DocumentLogicalIdsByExactKey.Keys.FirstOrDefault();
+            if (evict is not null)
+                state.DocumentLogicalIdsByExactKey.Remove(evict);
+        }
+        state.DocumentLogicalIdsByExactKey[exactKey] = logicalId;
+    }
     private static string GetString(JsonElement element, string property) =>
         element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
             ? value.GetString() ?? ""
@@ -779,6 +845,7 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
         public SemaphoreSlim Gate { get; } = new(1, 1);
         public string DocumentKey { get; set; } = "";
         public string DocumentLogicalId { get; set; } = "";
+        public Dictionary<string, string> DocumentLogicalIdsByExactKey { get; } = new(StringComparer.Ordinal);
         public ConcurrentDictionary<int, string> BackendToLogicalId { get; } = new();
         public ConcurrentDictionary<string, SemanticElement> ElementsByLogicalId { get; } = new(StringComparer.Ordinal);
         public ConcurrentDictionary<long, SemanticSurface> History { get; } = new();
@@ -804,6 +871,19 @@ internal sealed partial class BrowserStateEngine : IAsyncDisposable
         public string? ErrorText { get; set; }
         public long? EncodedDataLength { get; set; }
         public DateTimeOffset? FinishedAtUtc { get; set; }
+        public JsonElement? RequestHeaders { get; set; }
+        public JsonElement? ResponseHeaders { get; set; }
+        public JsonElement? Timing { get; set; }
+        public JsonElement? Initiator { get; set; }
+        public string? RequestPostData { get; set; }
+        public List<string> RedirectChain { get; } = new();
+        public bool FromServiceWorker { get; set; }
+        public bool FromDiskCache { get; set; }
+        public bool FromPrefetchCache { get; set; }
+        public string? Protocol { get; set; }
+        public string? RemoteIpAddress { get; set; }
+        public int? RemotePort { get; set; }
+        public string? GraphQlOperationName { get; set; }
+        public string? GraphQlOperationType { get; set; }
     }
 }
-

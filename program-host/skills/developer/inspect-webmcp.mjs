@@ -1,0 +1,2 @@
+import { targetFromArgs } from '../common/lib.mjs';
+export default async function inspectWebMcp(browser,args={}){const target=await targetFromArgs(browser,args);const tools=await browser.webmcp(target);const inspected=[];for(const tool of tools.slice(0,Number(args.limit||100))) inspected.push(await browser.webmcpInspect(target,tool.name,tool.frameId).catch(error=>({name:tool.name,error:error.message})));return {target,count:tools.length,tools,inspected};}

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Web Debug"
+  short_description: "Debug console, exceptions, network, and runtime."

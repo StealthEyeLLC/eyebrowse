@@ -1,0 +1,3 @@
+interface:
+  display_name: "Extension Debug"
+  short_description: "Debug unpacked Chrome extensions and MV3 lifecycle."

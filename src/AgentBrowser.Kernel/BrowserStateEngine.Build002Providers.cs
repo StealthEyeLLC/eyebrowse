@@ -17,6 +17,7 @@ internal sealed partial class BrowserStateEngine
     private long _nextExceptionId;
     private long _nextDownloadId;
     private long _nextArtifactId;
+    private int _downloadBehaviorRearmScheduled;
 
     private void HandleBuild002ProviderEvent(JsonElement message)
     {
@@ -39,7 +40,7 @@ internal sealed partial class BrowserStateEngine
                 0,
                 0,
                 NullIfEmpty(GetString(p, "frameId")),
-                Path.Combine(BrowserRuntime.DownloadRoot, guid),
+                Path.Combine(BrowserRuntime.DownloadStagingRoot, guid),
                 DateTimeOffset.UtcNow,
                 DateTimeOffset.UtcNow);
             _downloadsByGuid[guid] = info;
@@ -55,7 +56,7 @@ internal sealed partial class BrowserStateEngine
             {
                 current = new DownloadInfo(
                     $"dl_{Interlocked.Increment(ref _nextDownloadId)}", guid, "", null, "inProgress", 0, 0, null,
-                    Path.Combine(BrowserRuntime.DownloadRoot, guid), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
+                    Path.Combine(BrowserRuntime.DownloadStagingRoot, guid), DateTimeOffset.UtcNow, DateTimeOffset.UtcNow);
             }
             var state = GetString(p, "state");
             var received = p.TryGetProperty("receivedBytes", out var receivedValue) && receivedValue.TryGetDouble(out var receivedDouble) ? (long)receivedDouble : current.ReceivedBytes;
@@ -66,6 +67,7 @@ internal sealed partial class BrowserStateEngine
             {
                 var completion = _downloadCompletion.GetOrAdd(guid, _ => new TaskCompletionSource<DownloadInfo>(TaskCreationOptions.RunContinuationsAsynchronously));
                 completion.TrySetResult(updated);
+                _ = RearmDownloadBehaviorAfterTerminalEventAsync();
             }
             return;
         }
@@ -171,6 +173,26 @@ internal sealed partial class BrowserStateEngine
         }
     }
 
+    private async Task RearmDownloadBehaviorAfterTerminalEventAsync()
+    {
+        if (Interlocked.Exchange(ref _downloadBehaviorRearmScheduled, 1) != 0)
+            return;
+        try
+        {
+            // Never await a CDP command inline from the receive-loop event handler.
+            await Task.Yield();
+            await ArmDownloadBehaviorAsync(CancellationToken.None);
+        }
+        catch
+        {
+            // Provider support is dynamic; explicit initialization can re-arm if this attempt fails.
+        }
+        finally
+        {
+            Volatile.Write(ref _downloadBehaviorRearmScheduled, 0);
+        }
+    }
+
     private bool HasWebMcpTools(string targetId) =>
         _webMcpToolsByTarget.TryGetValue(targetId, out var tools) && !tools.IsEmpty;
 
@@ -237,8 +259,8 @@ internal sealed partial class BrowserStateEngine
 
     public async Task<IReadOnlyList<ConsoleEntry>> ConsoleListAsync(string targetReference, int limit = 100, CancellationToken cancellationToken = default)
     {
-        var target = await ResolveTargetAsync(targetReference, cancellationToken);
-        await EnsureTargetStateAsync(target, cancellationToken);
+        var target = await ResolveAnyTargetAsync(targetReference, cancellationToken);
+        await EnsureRuntimeTargetStateAsync(target, cancellationToken);
         return _consoleByTarget.TryGetValue(target.TargetId, out var queue)
             ? queue.Reverse().Take(Math.Clamp(limit, 1, 500)).Reverse().ToArray()
             : Array.Empty<ConsoleEntry>();
@@ -253,8 +275,8 @@ internal sealed partial class BrowserStateEngine
 
     public async Task<IReadOnlyList<BrowserException>> ExceptionListAsync(string targetReference, int limit = 100, CancellationToken cancellationToken = default)
     {
-        var target = await ResolveTargetAsync(targetReference, cancellationToken);
-        await EnsureTargetStateAsync(target, cancellationToken);
+        var target = await ResolveAnyTargetAsync(targetReference, cancellationToken);
+        await EnsureRuntimeTargetStateAsync(target, cancellationToken);
         return _exceptionsByTarget.TryGetValue(target.TargetId, out var queue)
             ? queue.Reverse().Take(Math.Clamp(limit, 1, 500)).Reverse().ToArray()
             : Array.Empty<BrowserException>();
@@ -296,7 +318,7 @@ internal sealed partial class BrowserStateEngine
         var completed = await DownloadWaitAsync(idOrGuid, cancellationToken: cancellationToken);
         if (!string.Equals(completed.State, "completed", StringComparison.Ordinal))
             throw new InvalidOperationException($"Download {completed.Id} is {completed.State}, not completed.");
-        var source = completed.Path ?? Path.Combine(BrowserRuntime.DownloadRoot, completed.Guid);
+        var source = completed.Path ?? Path.Combine(BrowserRuntime.DownloadStagingRoot, completed.Guid);
         if (!File.Exists(source))
             throw new FileNotFoundException("Completed Chrome download material was not found.", source);
         var fullDestination = Path.GetFullPath(destination);
@@ -317,6 +339,13 @@ internal sealed partial class BrowserStateEngine
         return byId ?? throw new KeyNotFoundException($"Unknown download '{idOrGuid}'.");
     }
 
+    public ArtifactInfo ArtifactRegister(string type, string path, string? target = null, string? source = null)
+    {
+        if (string.IsNullOrWhiteSpace(type)) throw new ArgumentException("Artifact type is required.", nameof(type));
+        var full = Path.GetFullPath(path);
+        if (!File.Exists(full)) throw new FileNotFoundException("Artifact material file does not exist.", full);
+        return RegisterArtifact(type.Trim(), full, target, source);
+    }
     private ArtifactInfo RegisterArtifact(string type, string path, string? target, string? source)
     {
         var info = new FileInfo(path);

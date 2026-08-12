@@ -1,0 +1,3 @@
+interface:
+  display_name: "Current Page Export"
+  short_description: "Export useful current-page content."

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Runtime Tools"
+  short_description: "Use page-advertised developer runtime tools."

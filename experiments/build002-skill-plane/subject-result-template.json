@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "candidateCommit": "FILL_AFTER_CANDIDATE_FREEZE",
+  "condition": "control-or-treatment",
+  "subjects": [
+    {
+      "taskId": "T01",
+      "subjectId": "fresh-chat-unique-id",
+      "success": false,
+      "wrongObjectActions": 0,
+      "modelBrowserRoundTrips": 0,
+      "skillActivations": [],
+      "maxMeaningfulOperationsSingleReasoning": 0,
+      "startIdentity": null,
+      "endIdentity": null,
+      "evidence": [],
+      "notes": ""
+    }
+  ]
+}

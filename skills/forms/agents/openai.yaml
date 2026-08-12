@@ -1,0 +1,3 @@
+interface:
+  display_name: "Forms"
+  short_description: "Fill and submit semantic browser forms."

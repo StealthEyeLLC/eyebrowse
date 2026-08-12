@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\AgentBrowser.State\AgentBrowser.State.csproj" />
+    <ProjectReference Include="..\..\src\AgentBrowser.Cdp\AgentBrowser.Cdp.csproj" />
   </ItemGroup>
 </Project>

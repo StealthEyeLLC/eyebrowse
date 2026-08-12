@@ -1,0 +1,3 @@
+interface:
+  display_name: "Network Debug"
+  short_description: "Debug requests, streaming, GraphQL, WebSockets, and SSE."

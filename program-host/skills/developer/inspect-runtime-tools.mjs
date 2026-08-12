@@ -1,0 +1,2 @@
+import { targetFromArgs } from '../common/lib.mjs';
+export default async function inspectRuntimeTools(browser,args={}){const target=await targetFromArgs(browser,args);const groups=await browser.runtimeTools(target);const inspected=[];for(const group of groups){for(const tool of (group.tools||[]).slice(0,Number(args.limitPerGroup||50))) inspected.push(await browser.runtimeToolInspect(target,tool.name,group.name).catch(error=>({group:group.name,name:tool.name,error:error.message})));}return {target,groups,inspected};}

@@ -19,19 +19,26 @@ internal sealed partial class BrowserStateEngine
     {
         Directory.CreateDirectory(BrowserRuntime.ArtifactRoot);
         Directory.CreateDirectory(BrowserRuntime.DownloadRoot);
+        Directory.CreateDirectory(BrowserRuntime.DownloadStagingRoot);
         try
         {
-            await _cdp.SendAsync("Browser.setDownloadBehavior", new
-            {
-                behavior = "allowAndName",
-                downloadPath = BrowserRuntime.DownloadRoot,
-                eventsEnabled = true
-            }, cancellationToken: cancellationToken);
+            await ArmDownloadBehaviorAsync(cancellationToken);
         }
         catch (CdpException)
         {
             // Download behavior is capability-detected. Browser.download* remains available through raw CDP.
         }
+    }
+
+    private async Task ArmDownloadBehaviorAsync(CancellationToken cancellationToken)
+    {
+        Directory.CreateDirectory(BrowserRuntime.DownloadStagingRoot);
+        await _cdp.SendAsync("Browser.setDownloadBehavior", new
+        {
+            behavior = "allowAndName",
+            downloadPath = BrowserRuntime.DownloadStagingRoot,
+            eventsEnabled = true
+        }, cancellationToken: cancellationToken);
     }
 
     private async Task InitializeBuild002TargetProvidersAsync(TargetState state, CancellationToken cancellationToken)
@@ -400,6 +407,11 @@ internal sealed partial class BrowserStateEngine
                 }
             }
 
+            HandleDevToolsBasicEvent(message);
+            HandlePerformanceMemoryEvent(message);
+            HandleExtensionsDebuggerEvent(message);
+            HandleAccessibilityScreencastEvent(message);
+            HandleNetworkDepthEvent(message);
             HandleBuild002ProviderEvent(message);
         }
         catch
@@ -527,18 +539,13 @@ internal sealed partial class BrowserStateEngine
 
     private static RebindingDecision DecideRebind(
         IEnumerable<SemanticElement> previousElements,
-        int backendNodeId,
-        string role,
-        string name,
-        string? description,
-        string? value,
-        IReadOnlyDictionary<string, string> attributes,
+        RebindingCandidate current,
+        IEnumerable<RebindingCandidate> currentPeers,
         IReadOnlySet<int> currentBackendNodeIds)
     {
-        var current = new RebindingCandidate("", 1, backendNodeId, role, name, description, value, attributes);
         var previous = previousElements.Select(x => new RebindingCandidate(
-            x.Id, x.Incarnation, x.BackendNodeId, x.Role, x.Name, x.Description, x.Value, x.IdentityAttributes));
-        return ConservativeRebinding.Resolve(current, previous, currentBackendNodeIds);
+            x.Id, x.Incarnation, x.BackendNodeId, x.Role, x.Name, x.Description, x.Value, x.IdentityAttributes)).ToArray();
+        return ConservativeRebinding.ResolveAgainstSurface(current, previous, currentPeers, currentBackendNodeIds);
     }
 
     public async Task<JsonElement> RawCdpAsync(
@@ -550,8 +557,8 @@ internal sealed partial class BrowserStateEngine
         object? payload = parameters?.Clone();
         if (string.IsNullOrWhiteSpace(targetReference))
             return await _cdp.SendAsync(method, payload, cancellationToken: cancellationToken);
-        var target = await ResolveTargetAsync(targetReference, cancellationToken);
-        var state = await EnsureTargetStateAsync(target, cancellationToken);
+        var target = await ResolveAnyTargetAsync(targetReference, cancellationToken);
+        var state = await EnsureRuntimeTargetStateAsync(target, cancellationToken);
         return await _cdp.SendAsync(method, payload, state.SessionId, cancellationToken);
     }
     private static bool TryRemoteValue(JsonElement commandResult, out JsonElement value)

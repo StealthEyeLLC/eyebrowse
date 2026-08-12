@@ -1,0 +1,3 @@
+interface:
+  display_name: "Gmail Web"
+  short_description: "Operate Gmail Web through the generic Skill Plane."

@@ -47,3 +47,7 @@ extension/**/dist/
 
 # Program host build output
 program-host/**/dist/
+
+# Build 002 disposable local runtime and compiler output
+tests/build002-compile/
+tests/build002-runtime/

@@ -31,14 +31,20 @@ internal sealed class KernelRpcDispatcher(
                 downloadRoot = BrowserRuntime.DownloadRoot,
                 kernelPid = Environment.ProcessId
             },
+            "browser.capabilities" => state.CapabilitySummary(GetOptionalString(p, "prefix")),
             "context.current" => await state.CurrentContextAsync(cancellationToken),
             "target.list" => await state.ListTargetsAsync(cancellationToken),
+            "debug_target.attach" => await state.DebugTargetAttachAsync(GetRequiredString(p, "target"), cancellationToken),
             "target.cognition" => await state.ListCognitionAsync(cancellationToken),
             "target.open" => await OpenTargetAsync(GetRequiredString(p, "url"), cancellationToken),
             "target.activate" => await state.ActivateTargetAsync(GetRequiredString(p, "target"), cancellationToken),
             "target.close" => await state.CloseTargetAsync(GetRequiredString(p, "target"), cancellationToken),
             "target.demote" => await state.DemoteTargetAsync(GetRequiredString(p, "target"), GetRequiredString(p, "to"), cancellationToken),
             "lifecycle.status" => await state.LifecycleStatusAsync(GetRequiredString(p, "target"), cancellationToken),
+            "navigate.go" => await state.NavigateGoAsync(GetRequiredString(p, "target"), GetRequiredString(p, "url"), cancellationToken),
+            "navigate.back" => await state.NavigateHistoryAsync(GetRequiredString(p, "target"), -1, cancellationToken),
+            "navigate.forward" => await state.NavigateHistoryAsync(GetRequiredString(p, "target"), 1, cancellationToken),
+            "navigate.reload" => await state.NavigateReloadAsync(GetRequiredString(p, "target"), GetOptionalBool(p, "ignoreCache") ?? false, cancellationToken),
             "observe.surface" => await state.ObserveAsync(GetRequiredString(p, "target"), cancellationToken),
             "observe.delta" => await state.DeltaAsync(GetRequiredString(p, "target"), GetRequiredInt64(p, "since"), cancellationToken),
             "query.find" => await state.QueryAsync(ParseQuery(p), cancellationToken),
@@ -65,6 +71,10 @@ internal sealed class KernelRpcDispatcher(
             "wait.quiet_for" => await WaitQuietAsync(p, cancellationToken),
             "network.search" => await NetworkSearchAsync(p, cancellationToken),
             "network.body" => await state.NetworkBodyAsync(GetRequiredString(p, "id"), cancellationToken),
+            "network.detail" => await state.NetworkDetailAsync(GetRequiredString(p, "id"), cancellationToken),
+            "network.search_body" => await state.NetworkSearchBodyAsync(GetRequiredString(p, "id"), GetRequiredString(p, "query"), GetOptionalBool(p, "caseSensitive") ?? false, GetOptionalBool(p, "isRegex") ?? false, cancellationToken),
+            "network.messages" => await state.NetworkMessagesAsync(GetRequiredString(p, "target"), GetOptionalString(p, "kind"), GetOptionalInt32(p, "limit") ?? 200, cancellationToken),
+            "network.body.save" => await state.NetworkBodySaveAsync(GetRequiredString(p, "id"), GetOptionalString(p, "destination"), GetOptionalInt32(p, "timeoutMs") ?? 120000, cancellationToken),
             "console.list" => await state.ConsoleListAsync(GetRequiredString(p, "target"), GetOptionalInt32(p, "limit") ?? 100, cancellationToken),
             "console.get" => state.ConsoleGet(GetRequiredInt64(p, "id")),
             "exception.list" => await state.ExceptionListAsync(GetRequiredString(p, "target"), GetOptionalInt32(p, "limit") ?? 100, cancellationToken),
@@ -75,10 +85,43 @@ internal sealed class KernelRpcDispatcher(
             "download.cancel" => await state.DownloadCancelAsync(GetRequiredString(p, "id"), cancellationToken),
             "artifact.list" => state.ArtifactList(),
             "artifact.get" => state.ArtifactGet(GetRequiredString(p, "id")),
+            "artifact.register" => state.ArtifactRegister(GetRequiredString(p, "type"), GetRequiredString(p, "path"), GetOptionalString(p, "target"), GetOptionalString(p, "source")),
             "screenshot.full_page" => await state.ScreenshotFullPageAsync(GetRequiredString(p, "target"), GetOptionalString(p, "destination"), cancellationToken),
             "screenshot.element" => await state.ScreenshotElementAsync(GetRequiredString(p, "id"), GetOptionalString(p, "destination"), cancellationToken),
+            "screenshot.region" => await state.ScreenshotRegionAsync(GetRequiredString(p, "target"), GetRequiredDouble(p, "x"), GetRequiredDouble(p, "y"), GetRequiredDouble(p, "width"), GetRequiredDouble(p, "height"), GetOptionalString(p, "destination"), cancellationToken),
             "performance.metrics" => await state.PerformanceMetricsAsync(GetRequiredString(p, "target"), cancellationToken),
-            "webmcp.list" => await state.WebMcpListAsync(GetRequiredString(p, "target"), cancellationToken),
+            "dialog.current" => await state.DialogCurrentAsync(GetRequiredString(p, "target"), cancellationToken),
+            "dialog.handle" => await state.DialogHandleAsync(GetRequiredString(p, "target"), GetOptionalBool(p, "accept") ?? true, GetOptionalString(p, "promptText"), cancellationToken),
+            "emulate.viewport" => await state.EmulateViewportAsync(GetRequiredString(p, "target"), GetRequiredInt32(p, "width"), GetRequiredInt32(p, "height"), GetOptionalDouble(p, "deviceScaleFactor") ?? 1, GetOptionalBool(p, "mobile") ?? false, GetOptionalBool(p, "touch") ?? false, cancellationToken),
+            "emulate.cpu" => await state.EmulateCpuAsync(GetRequiredString(p, "target"), GetRequiredDouble(p, "rate"), cancellationToken),
+            "emulate.geolocation" => await state.EmulateGeolocationAsync(GetRequiredString(p, "target"), GetRequiredDouble(p, "latitude"), GetRequiredDouble(p, "longitude"), GetOptionalDouble(p, "accuracy") ?? 1, cancellationToken),
+            "emulate.locale" => await state.EmulateLocaleAsync(GetRequiredString(p, "target"), GetRequiredString(p, "locale"), cancellationToken),
+            "emulate.timezone" => await state.EmulateTimezoneAsync(GetRequiredString(p, "target"), GetRequiredString(p, "timezoneId"), cancellationToken),
+            "emulate.media" => await state.EmulateMediaAsync(GetRequiredString(p, "target"), GetOptionalString(p, "media"), GetOptionalStringDictionary(p, "features"), cancellationToken),
+            "emulate.network" => await state.EmulateNetworkAsync(GetRequiredString(p, "target"), GetOptionalBool(p, "offline") ?? false, GetOptionalDouble(p, "latencyMs") ?? 0, GetOptionalDouble(p, "downloadBytesPerSecond") ?? -1, GetOptionalDouble(p, "uploadBytesPerSecond") ?? -1, cancellationToken),
+            "emulate.reset" => await state.EmulateResetAsync(GetRequiredString(p, "target"), cancellationToken),
+            "performance.timeline.enable" => await state.PerformanceTimelineEnableAsync(GetRequiredString(p, "target"), GetRequiredStringArray(p, "eventTypes"), cancellationToken),
+            "performance.timeline.list" => await state.PerformanceTimelineListAsync(GetRequiredString(p, "target"), GetOptionalString(p, "type"), GetOptionalInt32(p, "limit") ?? 200, cancellationToken),
+            "performance.trace.start" => await state.PerformanceTraceStartAsync(GetRequiredString(p, "target"), GetOptionalStringArray(p, "categories"), cancellationToken),
+            "performance.trace.stop" => await state.PerformanceTraceStopAsync(GetRequiredString(p, "target"), GetOptionalInt32(p, "timeoutMs") ?? 60000, cancellationToken),
+            "memory.current" => await state.MemoryCurrentAsync(GetRequiredString(p, "target"), cancellationToken),
+            "memory.heap_snapshot" => await state.MemoryHeapSnapshotAsync(GetRequiredString(p, "target"), GetOptionalBool(p, "captureNumericValue") ?? true, cancellationToken),
+            "memory.sampling.start" => await state.MemorySamplingStartAsync(GetRequiredString(p, "target"), GetOptionalDouble(p, "samplingInterval") ?? 32768, GetOptionalInt32(p, "stackDepth") ?? 128, cancellationToken),
+            "memory.sampling.stop" => await state.MemorySamplingStopAsync(GetRequiredString(p, "target"), cancellationToken),
+            "extension.list" => await state.ExtensionListAsync(cancellationToken),
+            "extension.load_unpacked" => await state.ExtensionLoadUnpackedAsync(GetRequiredString(p, "path"), GetOptionalBool(p, "enableInIncognito") ?? false, cancellationToken),
+            "extension.uninstall" => await state.ExtensionUninstallAsync(GetRequiredString(p, "id"), cancellationToken),
+            "extension.trigger_action" => await state.ExtensionTriggerActionAsync(GetRequiredString(p, "id"), GetRequiredString(p, "target"), cancellationToken),
+            "extension.storage" => await state.ExtensionStorageAsync(GetRequiredString(p, "id"), GetRequiredString(p, "storageArea"), GetOptionalStringArray(p, "keys"), cancellationToken),
+            "runtime_debug.enable" => await state.RuntimeDebuggerEnableAsync(GetRequiredString(p, "target"), cancellationToken),
+            "runtime_debug.scripts" => await state.RuntimeScriptsAsync(GetRequiredString(p, "target"), GetOptionalString(p, "contains"), GetOptionalInt32(p, "limit") ?? 500, cancellationToken),
+            "runtime_debug.source" => await state.RuntimeScriptSourceAsync(GetRequiredString(p, "target"), GetRequiredString(p, "scriptId"), cancellationToken),
+            "runtime_debug.search" => await state.RuntimeScriptSearchAsync(GetRequiredString(p, "target"), GetRequiredString(p, "scriptId"), GetRequiredString(p, "query"), GetOptionalBool(p, "caseSensitive") ?? false, GetOptionalBool(p, "isRegex") ?? false, cancellationToken),
+            "runtime_debug.paused" => await state.RuntimePausedAsync(GetRequiredString(p, "target"), cancellationToken),
+            "accessibility.inspect" => await state.AccessibilityInspectAsync(GetRequiredString(p, "id"), cancellationToken),
+            "accessibility.audit" => await state.AccessibilityAuditAsync(GetRequiredString(p, "target"), cancellationToken),
+            "screencast.start" => await state.ScreencastStartAsync(GetRequiredString(p, "target"), GetOptionalString(p, "format") ?? "jpeg", GetOptionalInt32(p, "quality") ?? 70, GetOptionalInt32(p, "maxWidth"), GetOptionalInt32(p, "maxHeight"), GetOptionalInt32(p, "everyNthFrame") ?? 1, GetOptionalInt32(p, "maxFrames") ?? 300, cancellationToken),
+            "screencast.stop" => await state.ScreencastStopAsync(GetRequiredString(p, "target"), cancellationToken),            "webmcp.list" => await state.WebMcpListAsync(GetRequiredString(p, "target"), cancellationToken),
             "webmcp.inspect" => await state.WebMcpInspectAsync(GetRequiredString(p, "target"), GetRequiredString(p, "name"), GetOptionalString(p, "frameId"), cancellationToken),
             "webmcp.execute" => await WebMcpExecuteAsync(p, cancellationToken),
             "runtime_tools.list" => await state.RuntimeToolsListAsync(GetRequiredString(p, "target"), cancellationToken),
@@ -283,6 +326,32 @@ internal sealed class KernelRpcDispatcher(
             ? result
             : null;
 
+    private static double GetRequiredDouble(JsonElement p, string name) =>
+        p.ValueKind == JsonValueKind.Object && p.TryGetProperty(name, out var value) && value.TryGetDouble(out var result)
+            ? result
+            : throw new ArgumentException($"Number parameter '{name}' is required.");
+
+    private static bool? GetOptionalBool(JsonElement p, string name) =>
+        p.ValueKind == JsonValueKind.Object && p.TryGetProperty(name, out var value) && value.ValueKind is JsonValueKind.True or JsonValueKind.False
+            ? value.GetBoolean()
+            : null;
+
+    private static IReadOnlyList<string>? GetOptionalStringArray(JsonElement p, string name)
+    {
+        if (p.ValueKind != JsonValueKind.Object || !p.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.Array)
+            return null;
+        return value.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString() ?? "").Where(x => x.Length > 0).ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, string>? GetOptionalStringDictionary(JsonElement p, string name)
+    {
+        if (p.ValueKind != JsonValueKind.Object || !p.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.Object)
+            return null;
+        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var property in value.EnumerateObject())
+            if (property.Value.ValueKind == JsonValueKind.String) result[property.Name] = property.Value.GetString() ?? "";
+        return result;
+    }
     private static IReadOnlyList<string> GetRequiredStringArray(JsonElement p, string name)
     {
         if (p.ValueKind != JsonValueKind.Object || !p.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.Array)

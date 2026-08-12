@@ -35,8 +35,10 @@ internal static class BrowserRuntime
     public static string PipeName => Env("EYEBROWSE_PIPE_NAME", $"eyebrowse-{ProfileName}");
     public static string ArtifactRoot => Env("EYEBROWSE_ARTIFACT_ROOT", DefaultArtifactRoot);
     public static string DownloadRoot => Env("EYEBROWSE_DOWNLOAD_ROOT", Path.Combine(ArtifactRoot, "downloads", ProfileName));
+    public static string DownloadStagingRoot => Env("EYEBROWSE_DOWNLOAD_STAGING_ROOT", Path.Combine(RuntimeDir, "downloads", ProfileName));
     public static string? ExtensionPath => NullIfWhiteSpace(Environment.GetEnvironmentVariable("EYEBROWSE_EXTENSION_PATH"));
     public static bool Headless => ParseBool(Environment.GetEnvironmentVariable("EYEBROWSE_HEADLESS"));
+    public static bool LimitExtensions => !string.Equals(Environment.GetEnvironmentVariable("EYEBROWSE_LIMIT_EXTENSIONS"), "0", StringComparison.OrdinalIgnoreCase);
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -49,10 +51,14 @@ internal static class BrowserRuntime
         Directory.CreateDirectory(RuntimeDir);
         Directory.CreateDirectory(ArtifactRoot);
         Directory.CreateDirectory(DownloadRoot);
+        Directory.CreateDirectory(DownloadStagingRoot);
 
         var existing = await TryReadLiveDescriptorAsync(cancellationToken);
         if (existing is not null)
+        {
+            await EnsureConfiguredExtensionAsync(existing, cancellationToken);
             return existing with { AttachedAtUtc = DateTimeOffset.UtcNow };
+        }
 
         var activePortPath = Path.Combine(UserDataDir, "DevToolsActivePort");
         try
@@ -82,11 +88,14 @@ internal static class BrowserRuntime
         else
             arguments.Add("--new-window");
 
+        arguments.AddRange(ExtraChromeArguments());
+
         if (!string.IsNullOrWhiteSpace(ExtensionPath))
         {
             if (!Directory.Exists(ExtensionPath))
                 throw new DirectoryNotFoundException($"EYEBROWSE_EXTENSION_PATH does not exist: {ExtensionPath}");
-            arguments.Add($"--disable-extensions-except=\"{ExtensionPath}\"");
+            if (LimitExtensions)
+                arguments.Add($"--disable-extensions-except=\"{ExtensionPath}\"");
             arguments.Add($"--load-extension=\"{ExtensionPath}\"");
         }
 
@@ -129,6 +138,7 @@ internal static class BrowserRuntime
                             endpoint.Browser,
                             endpoint.ProtocolVersion);
 
+                        await EnsureConfiguredExtensionAsync(descriptor, cancellationToken);
                         await WriteDescriptorAsync(descriptor, cancellationToken);
                         return descriptor;
                     }
@@ -206,12 +216,75 @@ internal static class BrowserRuntime
             userDataDir = descriptor.UserDataDir,
             pipe = PipeName,
             artifactRoot = ArtifactRoot,
-            downloadRoot = DownloadRoot
+            downloadRoot = DownloadRoot,
+            downloadStagingRoot = DownloadStagingRoot
         };
         await File.WriteAllTextAsync(
             KernelRuntimePath,
             JsonSerializer.Serialize(state, JsonOptions),
             cancellationToken);
+    }
+
+    private static async Task EnsureConfiguredExtensionAsync(
+        BrowserRuntimeDescriptor descriptor,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(ExtensionPath)) return;
+
+        var fullPath = Path.GetFullPath(ExtensionPath);
+        if (!Directory.Exists(fullPath))
+            throw new DirectoryNotFoundException($"EYEBROWSE_EXTENSION_PATH does not exist: {fullPath}");
+
+        var protocol = await CdpDiscovery.GetProtocolSummaryAsync(descriptor.Port, cancellationToken);
+        if (!protocol.Supports("Extensions.getExtensions") || !protocol.Supports("Extensions.loadUnpacked"))
+            return;
+
+        await using var cdp = new CdpClient();
+        await cdp.ConnectAsync(new Uri(descriptor.BrowserWebSocketUrl), cancellationToken);
+
+        var before = await cdp.SendAsync("Extensions.getExtensions", cancellationToken: cancellationToken);
+        if (ContainsEnabledExtensionAtPath(before, fullPath)) return;
+
+        await cdp.SendAsync(
+            "Extensions.loadUnpacked",
+            new { path = fullPath, enableInIncognito = false },
+            cancellationToken: cancellationToken);
+
+        var after = await cdp.SendAsync("Extensions.getExtensions", cancellationToken: cancellationToken);
+        if (!ContainsEnabledExtensionAtPath(after, fullPath))
+            throw new InvalidOperationException($"Chrome did not materialize configured eyeBROWSE extension: {fullPath}");
+    }
+
+    private static bool ContainsEnabledExtensionAtPath(JsonElement result, string fullPath)
+    {
+        if (!result.TryGetProperty("extensions", out var extensions) || extensions.ValueKind != JsonValueKind.Array)
+            return false;
+
+        foreach (var extension in extensions.EnumerateArray())
+        {
+            var path = extension.TryGetProperty("path", out var pathValue) && pathValue.ValueKind == JsonValueKind.String
+                ? pathValue.GetString()
+                : null;
+            var enabled = extension.TryGetProperty("enabled", out var enabledValue) && enabledValue.ValueKind == JsonValueKind.True;
+            if (!string.IsNullOrWhiteSpace(path) && enabled && PathEquals(path, fullPath))
+                return true;
+        }
+
+        return false;
+    }
+    private static IReadOnlyList<string> ExtraChromeArguments()
+    {
+        var raw = NullIfWhiteSpace(Environment.GetEnvironmentVariable("EYEBROWSE_CHROME_ARGS_JSON"));
+        if (raw is null) return Array.Empty<string>();
+        try
+        {
+            var values = JsonSerializer.Deserialize<string[]>(raw, JsonOptions) ?? Array.Empty<string>();
+            return values.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToArray();
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException("EYEBROWSE_CHROME_ARGS_JSON must be a JSON array of Chrome command-line arguments.", ex);
+        }
     }
 
     private static string Env(string name, string fallback) =>

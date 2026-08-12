@@ -1,0 +1,3 @@
+interface:
+  display_name: "eyeBROWSE Operator"
+  short_description: "Operate persistent Chrome through eyeBROWSE."

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Accessibility Debug"
+  short_description: "Debug browser accessibility semantics."
