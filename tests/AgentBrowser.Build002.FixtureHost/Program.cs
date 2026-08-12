@@ -26,6 +26,7 @@ app.MapGet("/", () => Html("Build 002 Fixture", """
 <a href="/a11y">accessibility</a>
 <a href="/dialog">dialog</a>
 <a href="/agent-readiness">agent readiness</a>
+<a href="/horizontal/export">horizontal</a>
 </nav>
 """));
 
@@ -94,7 +95,7 @@ app.MapGet("/forms", () => Html("Forms Fixture", """
 <label>Name <input id="name" name="name" value=""></label>
 <label>Role <select id="role" name="role"><option>Engineer</option><option>Researcher</option><option>Operator</option></select></label>
 <label><input id="enabled" type="checkbox" name="enabled"> Enabled</label>
-<label>Notes <div id="notes" role="textbox" contenteditable="true"></div></label>
+<label>Notes <div id="notes" role="textbox" contenteditable="true" aria-label="Notes"></div></label>
 <label>File <input id="upload" type="file" name="upload"></label>
 <button id="submit" type="submit">Submit</button>
 </form>
@@ -205,6 +206,144 @@ app.MapGet("/cross-eye.js", (HttpContext context) =>
     context.Response.Headers.CacheControl = "no-store";
     context.Response.Headers["X-EyeBrowse-Source-Sha256"] = hash;
     return Results.Bytes(bytes, "text/javascript; charset=utf-8");
+});
+app.MapGet("/horizontal/export", () => Html("Horizontal Export Fixture", """
+<main>
+<h1>Horizontal export fixture</h1>
+<p>This fixture proves generic page export and table extraction without GitHub-specific logic.</p>
+<h2>Inventory</h2>
+<table id="inventory">
+<caption>Fixture Inventory</caption>
+<thead><tr><th>Name</th><th>Count</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>alpha</td><td>3</td><td>ready</td></tr>
+<tr><td>beta</td><td>5</td><td>queued</td></tr>
+<tr><td>gamma</td><td>8</td><td>ready</td></tr>
+</tbody>
+</table>
+<p><a href="/horizontal/downloads">Download resources</a></p>
+</main>
+"""));
+
+app.MapGet("/horizontal/downloads", () => Html("Horizontal Download Fixture", """
+<main>
+<h1>Horizontal download fixture</h1>
+<ul>
+<li><a href="/horizontal/download/text.txt" download="fixture-note.txt">Text attachment</a></li>
+<li><a href="/horizontal/download/data.csv" download="fixture-data.csv">CSV attachment</a></li>
+<li><a href="/horizontal/download/report.pdf" download="fixture-report.pdf">PDF attachment</a></li>
+</ul>
+</main>
+"""));
+
+app.MapGet("/horizontal/download/text.txt", (HttpContext context) =>
+{
+    var bytes = Encoding.UTF8.GetBytes("horizontal fixture text resource\nline-two\n");
+    context.Response.Headers.ContentDisposition = "attachment; filename=fixture-note.txt";
+    return Results.Bytes(bytes, "text/plain; charset=utf-8");
+});
+
+app.MapGet("/horizontal/download/data.csv", (HttpContext context) =>
+{
+    var bytes = Encoding.UTF8.GetBytes("name,count\nalpha,3\nbeta,5\ngamma,8\n");
+    context.Response.Headers.ContentDisposition = "attachment; filename=fixture-data.csv";
+    return Results.Bytes(bytes, "text/csv; charset=utf-8");
+});
+
+app.MapGet("/horizontal/download/report.pdf", (HttpContext context) =>
+{
+    var pdf = "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 300 144]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj\n4 0 obj<</Length 67>>stream\nBT /F1 12 Tf 36 90 Td (eyeBROWSE horizontal PDF fixture) Tj ET\nendstream\nendobj\n5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\nxref\n0 6\n0000000000 65535 f \ntrailer<</Root 1 0 R/Size 6>>\nstartxref\n0\n%%EOF\n";
+    var bytes = Encoding.ASCII.GetBytes(pdf);
+    context.Response.Headers.ContentDisposition = "attachment; filename=fixture-report.pdf";
+    return Results.Bytes(bytes, "application/pdf");
+});
+
+app.MapGet("/horizontal/page/{page:int}", (int page) =>
+{
+    page = Math.Clamp(page, 1, 3);
+    var items = page switch
+    {
+        1 => "<li data-item=\"p1-a\">p1-a</li><li data-item=\"p1-b\">p1-b</li>",
+        2 => "<li data-item=\"p2-a\">p2-a</li><li data-item=\"p2-b\">p2-b</li>",
+        _ => "<li data-item=\"p3-a\">p3-a</li><li data-item=\"p3-b\">p3-b</li>"
+    };
+    var next = page < 3 ? $"<button aria-label=\"Next\" onclick=\"location.href='/horizontal/page/{page + 1}'\">Next</button>" : "";
+    return Html($"Horizontal Page {page}", $"<main><h1>Horizontal page {page}</h1><ol>{items}</ol>{next}</main>");
+});
+app.MapGet("/second-mail/sign-in", () => Html("Second Mail Sign In", """
+<main>
+<h1>Second Mail sign in</h1>
+<p>This deterministic fixture requires a persistent browser cookie.</p>
+<a href="/second-mail/login">Sign in to Second Mail</a>
+</main>
+"""));
+
+app.MapGet("/second-mail/login", (HttpContext context) =>
+{
+    context.Response.Cookies.Append("second_mail_auth", "yes", new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Lax });
+    return Results.Redirect("/second-mail");
+});
+
+app.MapGet("/second-mail", (HttpContext context) =>
+{
+    if (!context.Request.Cookies.TryGetValue("second_mail_auth", out var auth) || auth != "yes")
+        return Results.Redirect("/second-mail/sign-in");
+    return Html("Second Mail", """
+<main>
+<h1>Second Mail</h1>
+<p id="auth-state">authenticated</p>
+<label>Search mail <input id="mail-search" aria-label="Search mail"></label>
+<button id="compose" aria-label="Compose">Compose</button>
+<div id="mail-count"></div>
+<section id="mail-list" role="list" aria-label="Inbox"></section>
+<article id="message" aria-live="polite"></article>
+<section id="composer" hidden>
+  <h2>Compose message</h2>
+  <label>To <input id="compose-to" aria-label="To"></label>
+  <label>Subject <input id="compose-subject" aria-label="Subject"></label>
+  <div id="compose-body" role="textbox" contenteditable="true" aria-label="Body"></div>
+  <button id="send" aria-label="Send">Send</button>
+</section>
+<pre id="mail-status"></pre>
+<script>
+window.__secondMail = Array.from({length:240}, (_,i) => {
+  const n=i+1;
+  const invoice=n%37===0;
+  return {id:n, sender:`sender${String(n).padStart(3,'0')}@example.test`, subject:invoice?`Invoice ${String(n).padStart(3,'0')}`:`Project update ${String(n).padStart(3,'0')}`, body:`Message body ${n}`, attachment:invoice};
+});
+const list=document.querySelector('#mail-list');
+const count=document.querySelector('#mail-count');
+const detail=document.querySelector('#message');
+function render(records=window.__secondMail){
+  const shown=records.slice(0,25);
+  list.replaceChildren(...shown.map(m=>{
+    const item=document.createElement('div'); item.setAttribute('role','listitem'); item.dataset.messageId=String(m.id);
+    const row=document.createElement('button'); row.type='button'; row.setAttribute('aria-label',`Open ${m.subject} from ${m.sender}`); row.textContent=`${m.sender} - ${m.subject}`;
+    row.onclick=()=>openMessage(m); item.appendChild(row); return item;
+  }));
+  count.textContent=`showing ${shown.length} of ${records.length}`;
+}
+function openMessage(m){
+  const attachment=m.attachment?`<p><a aria-label="Download attachment" download="message-${m.id}.txt" href="/second-mail/attachment/${m.id}.txt">Download attachment</a></p>`:'';
+  detail.innerHTML=`<h2>${m.subject}</h2><p class="sender">${m.sender}</p><p>${m.body}</p>${attachment}`;
+  document.querySelector('#mail-status').textContent=`opened:${m.id}`;
+}
+render();
+document.querySelector('#mail-search').addEventListener('input',e=>{const q=e.target.value.toLowerCase();render(window.__secondMail.filter(m=>m.subject.toLowerCase().includes(q)||m.sender.toLowerCase().includes(q)));});
+document.querySelector('#compose').onclick=()=>{document.querySelector('#composer').hidden=false;document.querySelector('#compose-to').focus();document.querySelector('#mail-status').textContent='compose-open';};
+document.querySelector('#send').onclick=()=>{const payload={to:document.querySelector('#compose-to').value,subject:document.querySelector('#compose-subject').value,body:document.querySelector('#compose-body').innerText};document.querySelector('#mail-status').textContent='sent:'+JSON.stringify(payload);document.querySelector('#composer').hidden=true;};
+</script>
+</main>
+""");
+});
+
+app.MapGet("/second-mail/attachment/{id:int}.txt", (HttpContext context, int id) =>
+{
+    if (!context.Request.Cookies.TryGetValue("second_mail_auth", out var auth) || auth != "yes")
+        return Results.Unauthorized();
+    var bytes = Encoding.UTF8.GetBytes($"Second Mail attachment {id}\ninvoice-evidence-{id}\n");
+    context.Response.Headers.ContentDisposition = $"attachment; filename=message-{id}.txt";
+    return Results.Bytes(bytes, "text/plain; charset=utf-8");
 });
 app.MapGet("/memory", () => Html("Memory Leak Fixture", """
 <h1>Memory leak fixture</h1>
