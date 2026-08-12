@@ -18,12 +18,25 @@ internal sealed record BrowserRuntimeDescriptor(
 
 internal static class BrowserRuntime
 {
-    public const string ProfileName = "dev";
-    public const string UserDataDir = @"C:\AgentBrowser\Profiles\dev";
-    public const string RuntimeDir = @"C:\AgentBrowser\runtime";
-    public const string RuntimePath = @"C:\AgentBrowser\runtime\dev.json";
-    public const string KernelRuntimePath = @"C:\AgentBrowser\runtime\kernel-dev.json";
-    public const string ChromePath = @"C:\Program Files\Google\Chrome\Application\chrome.exe";
+    public const string DefaultProfileName = "dev";
+    public const string DefaultUserDataDir = @"C:\AgentBrowser\Profiles\dev";
+    public const string DefaultRuntimeDir = @"C:\AgentBrowser\runtime";
+    public const string DefaultChromePath = @"C:\Program Files\Google\Chrome\Application\chrome.exe";
+    public const string DefaultArtifactRoot = @"X:\AgentBrowser\Artifacts";
+
+    public static string ProfileName => Env("EYEBROWSE_PROFILE_NAME", DefaultProfileName);
+    public static string UserDataDir => Env("EYEBROWSE_USER_DATA_DIR", ProfileName == DefaultProfileName
+        ? DefaultUserDataDir
+        : Path.Combine(@"C:\AgentBrowser\Profiles", ProfileName));
+    public static string RuntimeDir => Env("EYEBROWSE_RUNTIME_DIR", DefaultRuntimeDir);
+    public static string RuntimePath => Path.Combine(RuntimeDir, $"{ProfileName}.json");
+    public static string KernelRuntimePath => Path.Combine(RuntimeDir, $"kernel-{ProfileName}.json");
+    public static string ChromePath => Env("EYEBROWSE_CHROME_PATH", DefaultChromePath);
+    public static string PipeName => Env("EYEBROWSE_PIPE_NAME", $"eyebrowse-{ProfileName}");
+    public static string ArtifactRoot => Env("EYEBROWSE_ARTIFACT_ROOT", DefaultArtifactRoot);
+    public static string DownloadRoot => Env("EYEBROWSE_DOWNLOAD_ROOT", Path.Combine(ArtifactRoot, "downloads", ProfileName));
+    public static string? ExtensionPath => NullIfWhiteSpace(Environment.GetEnvironmentVariable("EYEBROWSE_EXTENSION_PATH"));
+    public static bool Headless => ParseBool(Environment.GetEnvironmentVariable("EYEBROWSE_HEADLESS"));
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
@@ -34,6 +47,8 @@ internal static class BrowserRuntime
     {
         Directory.CreateDirectory(UserDataDir);
         Directory.CreateDirectory(RuntimeDir);
+        Directory.CreateDirectory(ArtifactRoot);
+        Directory.CreateDirectory(DownloadRoot);
 
         var existing = await TryReadLiveDescriptorAsync(cancellationToken);
         if (existing is not null)
@@ -52,24 +67,37 @@ internal static class BrowserRuntime
         if (!File.Exists(ChromePath))
             throw new FileNotFoundException("Chrome executable not found.", ChromePath);
 
-        var arguments = string.Join(' ', new[]
+        var arguments = new List<string>
         {
             $"--user-data-dir=\"{UserDataDir}\"",
             "--remote-debugging-port=0",
             "--remote-debugging-address=127.0.0.1",
             "--no-first-run",
             "--no-default-browser-check",
-            "--disable-session-crashed-bubble",
-            "--new-window",
-            "about:blank"
-        });
+            "--disable-session-crashed-bubble"
+        };
+
+        if (Headless)
+            arguments.Add("--headless=new");
+        else
+            arguments.Add("--new-window");
+
+        if (!string.IsNullOrWhiteSpace(ExtensionPath))
+        {
+            if (!Directory.Exists(ExtensionPath))
+                throw new DirectoryNotFoundException($"EYEBROWSE_EXTENSION_PATH does not exist: {ExtensionPath}");
+            arguments.Add($"--disable-extensions-except=\"{ExtensionPath}\"");
+            arguments.Add($"--load-extension=\"{ExtensionPath}\"");
+        }
+
+        arguments.Add("about:blank");
 
         var startInfo = new ProcessStartInfo
         {
             FileName = ChromePath,
-            Arguments = arguments,
+            Arguments = string.Join(' ', arguments),
             UseShellExecute = false,
-            CreateNoWindow = false,
+            CreateNoWindow = Headless,
             WorkingDirectory = Path.GetDirectoryName(ChromePath)!
         };
 
@@ -128,7 +156,10 @@ internal static class BrowserRuntime
                 await File.ReadAllTextAsync(RuntimePath, cancellationToken),
                 JsonOptions);
 
-            if (descriptor is null || !await CdpDiscovery.IsAliveAsync(descriptor.Port, cancellationToken))
+            if (descriptor is null ||
+                !string.Equals(descriptor.ProfileName, ProfileName, StringComparison.Ordinal) ||
+                !PathEquals(descriptor.UserDataDir, UserDataDir) ||
+                !await CdpDiscovery.IsAliveAsync(descriptor.Port, cancellationToken))
                 return null;
 
             var endpoint = await CdpDiscovery.DiscoverAsync(descriptor.Port, cancellationToken);
@@ -171,11 +202,28 @@ internal static class BrowserRuntime
             browserId = descriptor.BrowserId,
             browserWebSocketUrl = descriptor.BrowserWebSocketUrl,
             port = descriptor.Port,
-            profileName = descriptor.ProfileName
+            profileName = descriptor.ProfileName,
+            userDataDir = descriptor.UserDataDir,
+            pipe = PipeName,
+            artifactRoot = ArtifactRoot,
+            downloadRoot = DownloadRoot
         };
         await File.WriteAllTextAsync(
             KernelRuntimePath,
             JsonSerializer.Serialize(state, JsonOptions),
             cancellationToken);
     }
+
+    private static string Env(string name, string fallback) =>
+        NullIfWhiteSpace(Environment.GetEnvironmentVariable(name)) ?? fallback;
+
+    private static string? NullIfWhiteSpace(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static bool ParseBool(string? value) =>
+        string.Equals(value, "1", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(value, "true", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(value, "yes", StringComparison.OrdinalIgnoreCase);
+
+    private static bool PathEquals(string a, string b) =>
+        string.Equals(Path.GetFullPath(a).TrimEnd('\\'), Path.GetFullPath(b).TrimEnd('\\'), StringComparison.OrdinalIgnoreCase);
 }

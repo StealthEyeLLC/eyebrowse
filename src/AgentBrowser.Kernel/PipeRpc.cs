@@ -21,27 +21,72 @@ internal sealed class KernelRpcDispatcher(
             "browser.status" => new
             {
                 runtime.ProfileName,
+                runtime.UserDataDir,
                 runtime.Port,
                 runtime.BrowserId,
                 runtime.BrowserVersion,
                 runtime.ProtocolVersion,
+                pipe = BrowserRuntime.PipeName,
+                artifactRoot = BrowserRuntime.ArtifactRoot,
+                downloadRoot = BrowserRuntime.DownloadRoot,
                 kernelPid = Environment.ProcessId
             },
+            "context.current" => await state.CurrentContextAsync(cancellationToken),
             "target.list" => await state.ListTargetsAsync(cancellationToken),
+            "target.cognition" => await state.ListCognitionAsync(cancellationToken),
             "target.open" => await OpenTargetAsync(GetRequiredString(p, "url"), cancellationToken),
+            "target.activate" => await state.ActivateTargetAsync(GetRequiredString(p, "target"), cancellationToken),
+            "target.close" => await state.CloseTargetAsync(GetRequiredString(p, "target"), cancellationToken),
+            "target.demote" => await state.DemoteTargetAsync(GetRequiredString(p, "target"), GetRequiredString(p, "to"), cancellationToken),
+            "lifecycle.status" => await state.LifecycleStatusAsync(GetRequiredString(p, "target"), cancellationToken),
             "observe.surface" => await state.ObserveAsync(GetRequiredString(p, "target"), cancellationToken),
             "observe.delta" => await state.DeltaAsync(GetRequiredString(p, "target"), GetRequiredInt64(p, "since"), cancellationToken),
             "query.find" => await state.QueryAsync(ParseQuery(p), cancellationToken),
             "inspect.element" => state.Inspect(GetRequiredString(p, "id")),
+            "identity.resolve" => state.IdentityStatus(GetRequiredString(p, "id")),
             "action.click" => await ClickAsync(p, cancellationToken),
             "action.fill" => await FillAsync(p, cancellationToken),
             "action.type" => await TypeAsync(p, cancellationToken),
             "action.key" => await KeyAsync(p, cancellationToken),
             "action.scroll" => await ScrollAsync(p, cancellationToken),
+            "action.hover" => await ElementActionAsync(p, state.HoverAsync, cancellationToken),
+            "action.double_click" => await ElementActionAsync(p, state.DoubleClickAsync, cancellationToken),
+            "action.context_click" => await ElementActionAsync(p, state.ContextClickAsync, cancellationToken),
+            "action.focus" => await ElementActionAsync(p, state.FocusAsync, cancellationToken),
+            "action.select" => await state.SelectAsync(GetRequiredString(p, "id"), GetRequiredStringArray(p, "values"), cancellationToken),
+            "action.check" => await state.CheckAsync(GetRequiredString(p, "id"), true, cancellationToken),
+            "action.uncheck" => await state.CheckAsync(GetRequiredString(p, "id"), false, cancellationToken),
+            "file.upload" => await UploadAsync(p, cancellationToken),
             "js.evaluate" => await state.EvaluateAsync(GetRequiredString(p, "target"), GetRequiredString(p, "expression"), cancellationToken),
             "wait.until" => await WaitAsync(p, cancellationToken),
+            "wait.any" => await WaitAnyAsync(p, cancellationToken),
+            "wait.all" => await WaitAllAsync(p, cancellationToken),
+            "wait.sequence" => await WaitSequenceAsync(p, cancellationToken),
+            "wait.quiet_for" => await WaitQuietAsync(p, cancellationToken),
             "network.search" => await NetworkSearchAsync(p, cancellationToken),
             "network.body" => await state.NetworkBodyAsync(GetRequiredString(p, "id"), cancellationToken),
+            "console.list" => await state.ConsoleListAsync(GetRequiredString(p, "target"), GetOptionalInt32(p, "limit") ?? 100, cancellationToken),
+            "console.get" => state.ConsoleGet(GetRequiredInt64(p, "id")),
+            "exception.list" => await state.ExceptionListAsync(GetRequiredString(p, "target"), GetOptionalInt32(p, "limit") ?? 100, cancellationToken),
+            "exception.get" => state.ExceptionGet(GetRequiredInt64(p, "id")),
+            "download.list" => state.DownloadList(),
+            "download.wait" => await state.DownloadWaitAsync(GetRequiredString(p, "id"), GetOptionalInt32(p, "timeoutMs") ?? 120000, cancellationToken),
+            "download.save" => await state.DownloadSaveAsync(GetRequiredString(p, "id"), GetRequiredString(p, "destination"), cancellationToken),
+            "download.cancel" => await state.DownloadCancelAsync(GetRequiredString(p, "id"), cancellationToken),
+            "artifact.list" => state.ArtifactList(),
+            "artifact.get" => state.ArtifactGet(GetRequiredString(p, "id")),
+            "screenshot.full_page" => await state.ScreenshotFullPageAsync(GetRequiredString(p, "target"), GetOptionalString(p, "destination"), cancellationToken),
+            "screenshot.element" => await state.ScreenshotElementAsync(GetRequiredString(p, "id"), GetOptionalString(p, "destination"), cancellationToken),
+            "performance.metrics" => await state.PerformanceMetricsAsync(GetRequiredString(p, "target"), cancellationToken),
+            "webmcp.list" => await state.WebMcpListAsync(GetRequiredString(p, "target"), cancellationToken),
+            "webmcp.inspect" => await state.WebMcpInspectAsync(GetRequiredString(p, "target"), GetRequiredString(p, "name"), GetOptionalString(p, "frameId"), cancellationToken),
+            "webmcp.execute" => await WebMcpExecuteAsync(p, cancellationToken),
+            "runtime_tools.list" => await state.RuntimeToolsListAsync(GetRequiredString(p, "target"), cancellationToken),
+            "runtime_tools.inspect" => await state.RuntimeToolsInspectAsync(GetRequiredString(p, "target"), GetRequiredString(p, "name"), GetOptionalString(p, "group"), cancellationToken),
+            "runtime_tools.execute" => await RuntimeToolExecuteAsync(p, cancellationToken),
+            "cdp.subscribe" => await state.CdpSubscribeAsync(GetRequiredStringArray(p, "methods"), GetOptionalString(p, "target"), cancellationToken),
+            "cdp.next" => await state.CdpNextAsync(GetRequiredString(p, "id"), GetOptionalInt32(p, "timeoutMs") ?? 5000, GetOptionalInt32(p, "limit") ?? 50, cancellationToken),
+            "cdp.unsubscribe" => state.CdpUnsubscribe(GetRequiredString(p, "id")),
             "cdp.send" => await RawCdpAsync(p, cancellationToken),
             _ => throw new InvalidOperationException($"Unknown RPC method '{request.Method}'.")
         };
@@ -90,48 +135,115 @@ internal sealed class KernelRpcDispatcher(
         return new { surface.Cursor, surface.Target, surface.Document };
     }
 
+    private async Task<object> ScrollAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var target = GetRequiredString(p, "target");
+        await state.ScrollAsync(target, GetOptionalDouble(p, "deltaX") ?? 0, GetOptionalDouble(p, "deltaY") ?? 0, cancellationToken);
+        var surface = await state.ObserveAsync(target, cancellationToken);
+        return new { surface.Cursor, surface.Target, surface.Document };
+    }
+
+    private async Task<object> ElementActionAsync(JsonElement p, Func<string, CancellationToken, Task> action, CancellationToken cancellationToken)
+    {
+        var id = GetRequiredString(p, "id");
+        var target = state.Inspect(id).Target;
+        await action(id, cancellationToken);
+        var surface = await state.ObserveAsync(target, cancellationToken);
+        return new { id, surface.Cursor, surface.Target, surface.Document };
+    }
+
+    private async Task<object> UploadAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var id = GetRequiredString(p, "id");
+        await state.UploadFilesAsync(id, GetRequiredStringArray(p, "files"), cancellationToken);
+        var target = state.Inspect(id).Target;
+        var surface = await state.ObserveAsync(target, cancellationToken);
+        return new { id, surface.Cursor, surface.Target, surface.Document };
+    }
+
+    private async Task<object> WaitAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var target = GetRequiredString(p, "target");
+        var expression = GetRequiredString(p, "expression");
+        var timeoutMs = GetOptionalInt32(p, "timeoutMs") ?? 5000;
+        var intervalMs = GetOptionalInt32(p, "intervalMs") ?? 100;
+        var started = DateTimeOffset.UtcNow;
+        var matched = await state.WaitUntilAsync(target, expression, timeoutMs, intervalMs, cancellationToken);
+        return new { matched, elapsedMs = (long)(DateTimeOffset.UtcNow - started).TotalMilliseconds, target, expression };
+    }
+
+    private async Task<object> WaitAnyAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var started = DateTimeOffset.UtcNow;
+        var target = GetRequiredString(p, "target");
+        var expressions = GetRequiredStringArray(p, "expressions");
+        var matched = await state.WaitAnyAsync(target, expressions, GetOptionalInt32(p, "timeoutMs") ?? 5000, GetOptionalInt32(p, "intervalMs") ?? 100, cancellationToken);
+        return new { matched, elapsedMs = (long)(DateTimeOffset.UtcNow - started).TotalMilliseconds, target, expressions };
+    }
+
+    private async Task<object> WaitAllAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var started = DateTimeOffset.UtcNow;
+        var target = GetRequiredString(p, "target");
+        var expressions = GetRequiredStringArray(p, "expressions");
+        var matched = await state.WaitAllAsync(target, expressions, GetOptionalInt32(p, "timeoutMs") ?? 5000, GetOptionalInt32(p, "intervalMs") ?? 100, cancellationToken);
+        return new { matched, elapsedMs = (long)(DateTimeOffset.UtcNow - started).TotalMilliseconds, target, expressions };
+    }
+
+    private async Task<object> WaitSequenceAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var started = DateTimeOffset.UtcNow;
+        var target = GetRequiredString(p, "target");
+        var expressions = GetRequiredStringArray(p, "expressions");
+        var matched = await state.WaitSequenceAsync(target, expressions, GetOptionalInt32(p, "timeoutMs") ?? 5000, GetOptionalInt32(p, "intervalMs") ?? 100, cancellationToken);
+        return new { matched, complete = matched.Count == expressions.Count && matched.All(x => x), elapsedMs = (long)(DateTimeOffset.UtcNow - started).TotalMilliseconds, target, expressions };
+    }
+
+    private async Task<object> WaitQuietAsync(JsonElement p, CancellationToken cancellationToken)
+    {
+        var started = DateTimeOffset.UtcNow;
+        var target = GetRequiredString(p, "target");
+        var quietMs = GetRequiredInt32(p, "quietMs");
+        var matched = await state.WaitQuietForAsync(target, quietMs, GetOptionalInt32(p, "timeoutMs") ?? Math.Max(5000, quietMs), cancellationToken);
+        return new { matched, elapsedMs = (long)(DateTimeOffset.UtcNow - started).TotalMilliseconds, target, quietMs };
+    }
+
     private async Task<object> NetworkSearchAsync(JsonElement p, CancellationToken cancellationToken)
     {
         var target = GetRequiredString(p, "target");
         var contains = GetOptionalString(p, "contains");
         var method = GetOptionalString(p, "method");
         int? status = p.TryGetProperty("status", out var statusValue) && statusValue.TryGetInt32(out var statusInt) ? statusInt : null;
-        var limit = p.TryGetProperty("limit", out var limitValue) && limitValue.TryGetInt32(out var limitInt) ? limitInt : 50;
-        return await state.NetworkSearchAsync(target, contains, method, status, limit, cancellationToken);
+        return await state.NetworkSearchAsync(target, contains, method, status, GetOptionalInt32(p, "limit") ?? 50, cancellationToken);
     }
-    private async Task<object> WaitAsync(JsonElement p, CancellationToken cancellationToken)
+
+    private async Task<object> WebMcpExecuteAsync(JsonElement p, CancellationToken cancellationToken)
     {
-        var target = GetRequiredString(p, "target");
-        var expression = GetRequiredString(p, "expression");
-        var timeoutMs = (int)(GetOptionalDouble(p, "timeoutMs") ?? 5000);
-        var intervalMs = (int)(GetOptionalDouble(p, "intervalMs") ?? 100);
-        var started = DateTimeOffset.UtcNow;
-        var matched = await state.WaitUntilAsync(target, expression, timeoutMs, intervalMs, cancellationToken);
-        return new
-        {
-            matched,
-            elapsedMs = (long)(DateTimeOffset.UtcNow - started).TotalMilliseconds,
-            target,
-            expression
-        };
+        var input = p.TryGetProperty("input", out var value) ? value.Clone() : JsonSerializer.SerializeToElement(new { });
+        return await state.WebMcpExecuteAsync(
+            GetRequiredString(p, "target"),
+            GetRequiredString(p, "name"),
+            input,
+            GetOptionalString(p, "frameId"),
+            GetOptionalInt32(p, "timeoutMs") ?? 30000,
+            cancellationToken);
     }
-    private async Task<object> ScrollAsync(JsonElement p, CancellationToken cancellationToken)
+
+    private async Task<object> RuntimeToolExecuteAsync(JsonElement p, CancellationToken cancellationToken)
     {
-        var target = GetRequiredString(p, "target");
-        var deltaX = GetOptionalDouble(p, "deltaX") ?? 0;
-        var deltaY = GetOptionalDouble(p, "deltaY") ?? 0;
-        await state.ScrollAsync(target, deltaX, deltaY, cancellationToken);
-        var surface = await state.ObserveAsync(target, cancellationToken);
-        return new { surface.Cursor, surface.Target, surface.Document };
+        var input = p.TryGetProperty("input", out var value) ? value.Clone() : JsonSerializer.SerializeToElement(new { });
+        return await state.RuntimeToolsExecuteAsync(
+            GetRequiredString(p, "target"),
+            GetRequiredString(p, "name"),
+            input,
+            GetOptionalString(p, "group"),
+            cancellationToken);
     }
 
     private async Task<JsonElement> RawCdpAsync(JsonElement p, CancellationToken cancellationToken)
     {
-        var method = GetRequiredString(p, "method");
-        object? parameters = null;
-        if (p.ValueKind == JsonValueKind.Object && p.TryGetProperty("params", out var raw) && raw.ValueKind is not JsonValueKind.Null and not JsonValueKind.Undefined)
-            parameters = raw.Clone();
-        return await cdp.SendAsync(method, parameters, cancellationToken: cancellationToken);
+        JsonElement? parameters = p.TryGetProperty("params", out var raw) && raw.ValueKind is not JsonValueKind.Null and not JsonValueKind.Undefined ? raw.Clone() : null;
+        return await state.RawCdpAsync(GetRequiredString(p, "method"), parameters, GetOptionalString(p, "target"), cancellationToken);
     }
 
     private static ElementQuery ParseQuery(JsonElement p) => new(
@@ -139,11 +251,11 @@ internal sealed class KernelRpcDispatcher(
         Role: GetOptionalString(p, "role"),
         Name: GetOptionalString(p, "name"),
         Contains: GetOptionalString(p, "contains"),
-        Limit: p.TryGetProperty("limit", out var limit) && limit.TryGetInt32(out var n) ? n : 50);
+        Limit: GetOptionalInt32(p, "limit") ?? 50);
 
     private static string GetRequiredString(JsonElement p, string name) =>
-        p.ValueKind == JsonValueKind.Object && p.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String
-            ? value.GetString() ?? throw new ArgumentException($"Parameter '{name}' is empty.")
+        p.ValueKind == JsonValueKind.Object && p.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(value.GetString())
+            ? value.GetString()!
             : throw new ArgumentException($"String parameter '{name}' is required.");
 
     private static string? GetOptionalString(JsonElement p, string name) =>
@@ -156,12 +268,30 @@ internal sealed class KernelRpcDispatcher(
             ? result
             : throw new ArgumentException($"Integer parameter '{name}' is required.");
 
+    private static int GetRequiredInt32(JsonElement p, string name) =>
+        p.ValueKind == JsonValueKind.Object && p.TryGetProperty(name, out var value) && value.TryGetInt32(out var result)
+            ? result
+            : throw new ArgumentException($"Integer parameter '{name}' is required.");
+
+    private static int? GetOptionalInt32(JsonElement p, string name) =>
+        p.ValueKind == JsonValueKind.Object && p.TryGetProperty(name, out var value) && value.TryGetInt32(out var result)
+            ? result
+            : null;
+
     private static double? GetOptionalDouble(JsonElement p, string name) =>
         p.ValueKind == JsonValueKind.Object && p.TryGetProperty(name, out var value) && value.TryGetDouble(out var result)
             ? result
             : null;
-}
 
+    private static IReadOnlyList<string> GetRequiredStringArray(JsonElement p, string name)
+    {
+        if (p.ValueKind != JsonValueKind.Object || !p.TryGetProperty(name, out var value) || value.ValueKind != JsonValueKind.Array)
+            throw new ArgumentException($"Array parameter '{name}' is required.");
+        var items = value.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString() ?? "").Where(x => x.Length > 0).ToArray();
+        if (items.Length == 0) throw new ArgumentException($"Array parameter '{name}' must contain at least one string.");
+        return items;
+    }
+}
 internal sealed class PipeRpcServer(string pipeName, KernelRpcDispatcher dispatcher)
 {
     public async Task RunAsync(CancellationToken cancellationToken)

@@ -4,12 +4,13 @@ namespace AgentBrowser.Kernel;
 
 internal sealed class LogicalIdStore
 {
-    private const string PathName = @"C:\AgentBrowser\runtime\logical-ids-dev.json";
     private readonly object _gate = new();
+    private readonly string _pathName;
     private State _state;
 
-    public LogicalIdStore()
+    public LogicalIdStore(string? pathName = null)
     {
+        _pathName = pathName ?? Path.Combine(BrowserRuntime.RuntimeDir, $"logical-ids-{BrowserRuntime.ProfileName}.json");
         _state = Load();
     }
 
@@ -66,12 +67,12 @@ internal sealed class LogicalIdStore
         }
     }
 
-    private static State Load()
+    private State Load()
     {
         try
         {
-            if (!File.Exists(PathName)) return new State();
-            return JsonSerializer.Deserialize<State>(File.ReadAllText(PathName)) ?? new State();
+            if (!File.Exists(_pathName)) return new State();
+            return JsonSerializer.Deserialize<State>(File.ReadAllText(_pathName)) ?? new State();
         }
         catch
         {
@@ -81,10 +82,10 @@ internal sealed class LogicalIdStore
 
     private void Save()
     {
-        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(PathName)!);
-        var temp = PathName + ".tmp";
+        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(_pathName)!);
+        var temp = _pathName + ".tmp";
         File.WriteAllText(temp, JsonSerializer.Serialize(_state, new JsonSerializerOptions { WriteIndented = true }));
-        File.Move(temp, PathName, true);
+        File.Move(temp, _pathName, true);
     }
 
     private sealed class State

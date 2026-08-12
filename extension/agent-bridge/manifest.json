@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "eyebrowse agent bridge",
-  "version": "0.1.0",
-  "description": "Document-resident identity and event sensing for eyebrowse.",
-  "permissions": ["scripting"],
+  "version": "0.2.0",
+  "description": "Document-resident identity, lifecycle sensing, and neutral active-tab correspondence for eyeBROWSE.",
+  "permissions": ["scripting", "tabs", "debugger"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "service-worker.js"

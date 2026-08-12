@@ -10,6 +10,8 @@ internal sealed record BridgeDocumentState(
     long Sequence,
     int BindingCount);
 
+internal sealed record BridgeElementBinding(string LogicalId, int Incarnation, long Serial);
+
 internal sealed class DocumentIdentityBridge : IDisposable
 {
     private readonly CdpClient _cdp;
@@ -69,10 +71,9 @@ internal sealed class DocumentIdentityBridge : IDisposable
         }, sessionId, cancellationToken);
     }
 
-    public async Task<string?> GetOrBindLogicalIdAsync(
+    public async Task<BridgeElementBinding?> TryGetLogicalBindingAsync(
         string sessionId,
         int backendNodeId,
-        string proposedLogicalId,
         CancellationToken cancellationToken = default)
     {
         var contextId = await FindBridgeContextAsync(sessionId, cancellationToken);
@@ -96,28 +97,17 @@ internal sealed class DocumentIdentityBridge : IDisposable
                 returnByValue = true
             }, sessionId, cancellationToken);
 
-            if (TryRemoteValue(lookup, out var lookupValue) && lookupValue.ValueKind == JsonValueKind.Object)
-            {
-                var existing = lookupValue.TryGetProperty("logicalId", out var logical) && logical.ValueKind == JsonValueKind.String
-                    ? logical.GetString()
-                    : null;
-                if (!string.IsNullOrWhiteSpace(existing))
-                    return existing;
-            }
-
-            var bind = await _cdp.SendAsync("Runtime.callFunctionOn", new
-            {
-                objectId,
-                functionDeclaration = "function(logicalId){return globalThis.__eyebrowseIdentity?.bind?.(this,logicalId) ?? null;}",
-                arguments = new[] { new { value = proposedLogicalId } },
-                returnByValue = true
-            }, sessionId, cancellationToken);
-
-            if (TryRemoteValue(bind, out var bindValue) && bindValue.ValueKind == JsonValueKind.Object &&
-                bindValue.TryGetProperty("logicalId", out var bound) && bound.ValueKind == JsonValueKind.String)
-                return bound.GetString();
-
-            return proposedLogicalId;
+            if (!TryRemoteValue(lookup, out var value) || value.ValueKind != JsonValueKind.Object)
+                return null;
+            var id = value.TryGetProperty("logicalId", out var logical) && logical.ValueKind == JsonValueKind.String
+                ? logical.GetString()
+                : null;
+            if (string.IsNullOrWhiteSpace(id)) return null;
+            var incarnation = value.TryGetProperty("incarnation", out var incarnationValue) && incarnationValue.TryGetInt32(out var i)
+                ? Math.Max(1, i)
+                : 1;
+            var serial = value.TryGetProperty("serial", out var serialValue) && serialValue.TryGetInt64(out var s) ? s : 0;
+            return new BridgeElementBinding(id!, incarnation, serial);
         }
         catch (CdpException)
         {
@@ -130,6 +120,70 @@ internal sealed class DocumentIdentityBridge : IDisposable
                 try { await _cdp.SendAsync("Runtime.releaseObject", new { objectId }, sessionId, CancellationToken.None); } catch { }
             }
         }
+    }
+
+    public async Task<BridgeElementBinding?> BindLogicalIdAsync(
+        string sessionId,
+        int backendNodeId,
+        string logicalId,
+        int incarnation,
+        CancellationToken cancellationToken = default)
+    {
+        var contextId = await FindBridgeContextAsync(sessionId, cancellationToken);
+        if (contextId is null) return null;
+
+        string? objectId = null;
+        try
+        {
+            var resolved = await _cdp.SendAsync("DOM.resolveNode", new
+            {
+                backendNodeId,
+                executionContextId = contextId.Value
+            }, sessionId, cancellationToken);
+            objectId = resolved.GetProperty("object").GetProperty("objectId").GetString();
+            if (string.IsNullOrWhiteSpace(objectId)) return null;
+
+            var bind = await _cdp.SendAsync("Runtime.callFunctionOn", new
+            {
+                objectId,
+                functionDeclaration = "function(logicalId,incarnation){return globalThis.__eyebrowseIdentity?.bind?.(this,logicalId,incarnation) ?? null;}",
+                arguments = new object[] { new { value = logicalId }, new { value = Math.Max(1, incarnation) } },
+                returnByValue = true
+            }, sessionId, cancellationToken);
+
+            if (!TryRemoteValue(bind, out var value) || value.ValueKind != JsonValueKind.Object)
+                return new BridgeElementBinding(logicalId, Math.Max(1, incarnation), 0);
+            var boundId = value.TryGetProperty("logicalId", out var logical) && logical.ValueKind == JsonValueKind.String
+                ? logical.GetString() ?? logicalId
+                : logicalId;
+            var boundIncarnation = value.TryGetProperty("incarnation", out var incarnationValue) && incarnationValue.TryGetInt32(out var i)
+                ? Math.Max(1, i)
+                : Math.Max(1, incarnation);
+            var serial = value.TryGetProperty("serial", out var serialValue) && serialValue.TryGetInt64(out var s) ? s : 0;
+            return new BridgeElementBinding(boundId, boundIncarnation, serial);
+        }
+        catch (CdpException)
+        {
+            return null;
+        }
+        finally
+        {
+            if (!string.IsNullOrWhiteSpace(objectId))
+            {
+                try { await _cdp.SendAsync("Runtime.releaseObject", new { objectId }, sessionId, CancellationToken.None); } catch { }
+            }
+        }
+    }
+
+    public async Task<string?> GetOrBindLogicalIdAsync(
+        string sessionId,
+        int backendNodeId,
+        string proposedLogicalId,
+        CancellationToken cancellationToken = default)
+    {
+        var existing = await TryGetLogicalBindingAsync(sessionId, backendNodeId, cancellationToken);
+        if (existing is not null) return existing.LogicalId;
+        return (await BindLogicalIdAsync(sessionId, backendNodeId, proposedLogicalId, 1, cancellationToken))?.LogicalId;
     }
 
     public async Task<JsonElement?> ReadEventsAsync(
@@ -163,7 +217,7 @@ internal sealed class DocumentIdentityBridge : IDisposable
                 {
                     var result = await _cdp.SendAsync("Runtime.evaluate", new
                     {
-                        expression = "globalThis.__eyebrowseIdentity?.version === 1",
+                        expression = "Number(globalThis.__eyebrowseIdentity?.version ?? 0) >= 1",
                         contextId,
                         returnByValue = true
                     }, sessionId, cancellationToken);

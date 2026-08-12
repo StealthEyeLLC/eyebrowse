@@ -4,4 +4,7 @@
     <Project Path="src/AgentBrowser.State/AgentBrowser.State.csproj" />
     <Project Path="src/AgentBrowser.Kernel/AgentBrowser.Kernel.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AgentBrowser.Build002.Smoke/AgentBrowser.Build002.Smoke.csproj" />
+  </Folder>
 </Solution>

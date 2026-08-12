@@ -187,7 +187,7 @@ static async Task<int> CallAsync(string[] args)
         parameters = JsonSerializer.SerializeToElement(new { });
     }
 
-    var response = await PipeRpcClient.CallAsync("eyebrowse-dev", args[0], parameters);
+    var response = await PipeRpcClient.CallAsync(BrowserRuntime.PipeName, args[0], parameters);
     Console.WriteLine(JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true }));
     return response.TryGetProperty("ok", out var ok) && ok.GetBoolean() ? 0 : 4;
 }
@@ -200,7 +200,7 @@ static async Task<int> ServeAsync()
     await using var state = new BrowserStateEngine(cdp, protocol.Supports("Page.getAnnotatedPageContent"));
     await state.InitializeAsync();
     var dispatcher = new KernelRpcDispatcher(runtime, cdp, state);
-    var server = new PipeRpcServer("eyebrowse-dev", dispatcher);
+    var server = new PipeRpcServer(BrowserRuntime.PipeName, dispatcher);
     var version = await cdp.SendAsync("Browser.getVersion");
     await BrowserRuntime.WriteKernelDescriptorAsync(runtime);
 
@@ -208,7 +208,7 @@ static async Task<int> ServeAsync()
     {
         ready = true,
         pid = Environment.ProcessId,
-        pipe = "eyebrowse-dev",
+        pipe = BrowserRuntime.PipeName,
         runtime.BrowserId,
         runtime.Port,
         product = version.GetProperty("product").GetString(),
@@ -253,7 +253,7 @@ static int Unknown(string command)
 
 static void PrintHelp()
 {
-    Console.WriteLine("eyebrowse Build 001 kernel");
+    Console.WriteLine("eyeBROWSE Build 002 candidate kernel (Build 001-compatible defaults)");
     Console.WriteLine("Commands: start | status | protocol | targets | open <url> | eval <targetId> <expression> | raw <method> [params-json] | call <rpc-method> [params-json] | serve");
 }
 

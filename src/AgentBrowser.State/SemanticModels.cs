@@ -7,7 +7,9 @@ public sealed record BrowserTarget(
     string Title,
     string Url,
     bool Attached,
-    string? OpenerId);
+    string? OpenerId,
+    string Cognition = CognitionStates.Cold,
+    string Lifecycle = LifecycleStates.Unknown);
 
 public sealed record ProviderStats(
     int AccessibilityNodes,
@@ -28,7 +30,10 @@ public sealed record SemanticElement(
     string? Value,
     bool Disabled,
     bool Focused,
-    IReadOnlyList<string> Actions);
+    IReadOnlyList<string> Actions,
+    int Incarnation = 1,
+    string Identity = IdentityOutcomes.Exact,
+    IReadOnlyDictionary<string, string>? IdentityAttributes = null);
 
 public sealed record SemanticSurface(
     long Cursor,
@@ -41,7 +46,8 @@ public sealed record SemanticSurface(
     string Title,
     DateTimeOffset CapturedAtUtc,
     ProviderStats Providers,
-    IReadOnlyList<SemanticElement> Elements);
+    IReadOnlyList<SemanticElement> Elements,
+    string Lifecycle = LifecycleStates.Active);
 
 public sealed record SemanticChange(
     string Id,

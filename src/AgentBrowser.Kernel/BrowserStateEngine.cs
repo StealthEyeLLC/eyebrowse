@@ -5,7 +5,7 @@ using AgentBrowser.State;
 
 namespace AgentBrowser.Kernel;
 
-internal sealed class BrowserStateEngine : IAsyncDisposable
+internal sealed partial class BrowserStateEngine : IAsyncDisposable
 {
     private static readonly HashSet<string> InteractableRoles = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -34,6 +34,7 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         await _cdp.SendAsync("Target.setDiscoverTargets", new { discover = true }, cancellationToken: cancellationToken);
+        await InitializeBuild002BrowserProvidersAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<BrowserTarget>> ListTargetsAsync(CancellationToken cancellationToken = default)
@@ -52,7 +53,9 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
                 GetString(info, "title"),
                 GetString(info, "url"),
                 info.TryGetProperty("attached", out var attached) && attached.GetBoolean(),
-                info.TryGetProperty("openerId", out var opener) ? opener.GetString() : null));
+                info.TryGetProperty("openerId", out var opener) ? opener.GetString() : null,
+                GetCognitionState(targetId),
+                GetLifecycleState(targetId)));
         }
 
         return list.OrderBy(x => x.Id, StringComparer.Ordinal).ToArray();
@@ -351,6 +354,7 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         var loaderId = frame.TryGetProperty("loaderId", out var loader) ? loader.GetString() : null;
         var url = GetString(frame, "url");
         var bridgeDocument = await _identity.ReadDocumentStateAsync(state.SessionId, cancellationToken);
+        await RefreshBridgeLifecycleAsync(state, bridgeDocument, cancellationToken);
         var documentKey = bridgeDocument?.DocumentToken ??
             (!string.IsNullOrWhiteSpace(loaderId) ? loaderId! : $"{frameId}|{url}");
 
@@ -373,8 +377,15 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
             state.History.Clear();
         }
 
+        UpdateLifecycle(state, GetLifecycleState(state.TargetId) is var observedLifecycle && observedLifecycle != LifecycleStates.Unknown ? observedLifecycle : LifecycleStates.Active, "semantic-observe", javaScriptAvailable: true, frameId: frameId, loaderId: loaderId, documentToken: bridgeDocument?.DocumentToken);
+
         var ax = await _cdp.SendAsync("Accessibility.getFullAXTree", sessionId: state.SessionId, cancellationToken: cancellationToken);
         var axNodes = ax.GetProperty("nodes").EnumerateArray().ToArray();
+        var currentBackendNodeIds = axNodes
+            .Where(node => node.TryGetProperty("backendDOMNodeId", out var backend) && backend.TryGetInt32(out _))
+            .Select(node => node.GetProperty("backendDOMNodeId").GetInt32())
+            .ToHashSet();
+        var priorElements = state.ElementsByLogicalId.Values.ToArray();
 
         int snapshotDocuments = 0;
         int snapshotNodes = 0;
@@ -418,11 +429,41 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
             var value = NullIfEmpty(AxValue(node, "value"));
             var disabled = AxPropertyBool(node, "disabled");
             var focused = AxPropertyBool(node, "focused");
-            if (!state.BackendToLogicalId.TryGetValue(backendNodeId, out var elementId))
+            var attributes = await GetIdentityAttributesAsync(state, backendNodeId, cancellationToken);
+            string elementId;
+            var incarnation = 1;
+            var identity = IdentityOutcomes.Exact;
+
+            if (state.BackendToLogicalId.TryGetValue(backendNodeId, out var backendLogical))
             {
-                var proposedId = _ids.NewElementId();
-                elementId = await _identity.GetOrBindLogicalIdAsync(state.SessionId, backendNodeId, proposedId, cancellationToken)
-                    ?? proposedId;
+                elementId = backendLogical;
+                var previous = priorElements.FirstOrDefault(x => string.Equals(x.Id, elementId, StringComparison.Ordinal));
+                incarnation = previous?.Incarnation ?? 1;
+            }
+            else
+            {
+                var exact = await _identity.TryGetLogicalBindingAsync(state.SessionId, backendNodeId, cancellationToken);
+                if (exact is not null)
+                {
+                    elementId = exact.LogicalId;
+                    incarnation = exact.Incarnation;
+                }
+                else
+                {
+                    var decision = DecideRebind(priorElements, backendNodeId, role, name, description, value, attributes, currentBackendNodeIds);
+                    if (decision.Outcome == IdentityOutcomes.Rebound && !string.IsNullOrWhiteSpace(decision.Id))
+                    {
+                        elementId = decision.Id!;
+                        incarnation = decision.Incarnation;
+                        identity = IdentityOutcomes.Rebound;
+                    }
+                    else
+                    {
+                        elementId = _ids.NewElementId();
+                    }
+
+                    await _identity.BindLogicalIdAsync(state.SessionId, backendNodeId, elementId, incarnation, cancellationToken);
+                }
                 _ids.ObserveExisting(elementId);
                 state.BackendToLogicalId[backendNodeId] = elementId;
             }
@@ -440,16 +481,27 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
                 value,
                 disabled,
                 focused,
-                actions);
+                actions,
+                incarnation,
+                identity,
+                attributes);
             elements.Add(semantic);
             state.ElementsByLogicalId[elementId] = semantic;
+            RegisterLiveIdentity(semantic);
         }
 
         var currentIds = elements.Select(x => x.Id).ToHashSet(StringComparer.Ordinal);
+        foreach (var previous in priorElements.Where(x => !currentIds.Contains(x.Id)))
+            RegisterRemovedIdentity(previous, elements);
         foreach (var id in state.ElementsByLogicalId.Keys.ToArray())
         {
             if (!currentIds.Contains(id))
                 state.ElementsByLogicalId.TryRemove(id, out _);
+        }
+        foreach (var backend in state.BackendToLogicalId.Keys.ToArray())
+        {
+            if (!currentBackendNodeIds.Contains(backend))
+                state.BackendToLogicalId.TryRemove(backend, out _);
         }
 
         var cursor = Interlocked.Increment(ref _cursor);
@@ -464,7 +516,8 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
             target.Title,
             DateTimeOffset.UtcNow,
             new ProviderStats(axNodes.Length, elements.Count, snapshotDocuments, snapshotNodes, _apcAvailable),
-            elements.OrderBy(x => NumericSuffix(x.Id)).ToArray());
+            elements.OrderBy(x => NumericSuffix(x.Id)).ToArray(),
+            GetLifecycleState(state.TargetId) is var surfaceLifecycle && surfaceLifecycle != LifecycleStates.Unknown ? surfaceLifecycle : LifecycleStates.Active);
 
         state.History[cursor] = surface;
         while (state.History.Count > 32)
@@ -489,7 +542,10 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
     private async Task<TargetState> EnsureTargetStateAsync(BrowserTarget target, CancellationToken cancellationToken)
     {
         if (_targets.TryGetValue(target.TargetId, out var existing))
+        {
+            MarkTargetHot(existing);
             return existing;
+        }
 
         var attach = await _cdp.SendAsync("Target.attachToTarget", new { targetId = target.TargetId, flatten = true }, cancellationToken: cancellationToken);
         var sessionId = attach.GetProperty("sessionId").GetString()
@@ -510,6 +566,8 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
         await _cdp.SendAsync("DOM.enable", sessionId: sessionId, cancellationToken: cancellationToken);
         await _cdp.SendAsync("Network.enable", sessionId: sessionId, cancellationToken: cancellationToken);
         await _cdp.SendAsync("Accessibility.enable", sessionId: sessionId, cancellationToken: cancellationToken);
+        await InitializeBuild002TargetProvidersAsync(state, cancellationToken);
+        MarkTargetHot(state);
         return state;
     }
 
@@ -525,6 +583,7 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
 
     private Task OnCdpEventAsync(JsonElement message)
     {
+        HandleBuild002Event(message);
         if (!message.TryGetProperty("sessionId", out var sessionElement) || sessionElement.ValueKind != JsonValueKind.String)
             return Task.CompletedTask;
         var sessionId = sessionElement.GetString();
@@ -708,6 +767,7 @@ internal sealed class BrowserStateEngine : IAsyncDisposable
             state.Gate.Dispose();
         }
         _cdp.EventReceived -= OnCdpEventAsync;
+        DisposeBuild002Subscriptions();
         _identity.Dispose();
     }
 

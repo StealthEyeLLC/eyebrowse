@@ -1,5 +1,5 @@
 (() => {
-  if (globalThis.__eyebrowseIdentity?.version === 1) return;
+  if (Number(globalThis.__eyebrowseIdentity?.version ?? 0) >= 2) return;
 
   let nextSerial = 1;
   let sequence = 0;
@@ -7,8 +7,9 @@
   const serialToNode = new Map();
   const serialToLogical = new Map();
   const logicalToSerial = new Map();
+  const logicalToIncarnation = new Map();
   const events = [];
-  const maxEvents = 256;
+  const maxEvents = 512;
   let documentLogicalId = null;
 
   const token = globalThis.crypto?.randomUUID?.() ??
@@ -36,32 +37,41 @@
     if (!node) {
       serialToNode.delete(serial);
       const logical = serialToLogical.get(serial);
-      if (logical) logicalToSerial.delete(logical);
+      if (logical) {
+        logicalToSerial.delete(logical);
+        logicalToIncarnation.delete(logical);
+      }
       serialToLogical.delete(serial);
     }
     return node;
   }
 
-  function bind(node, logicalId) {
+  function bind(node, logicalId, incarnation = 1) {
     const serial = serialFor(node);
     if (!serial || !logicalId) return null;
     const previousLogical = serialToLogical.get(serial);
-    if (previousLogical && previousLogical !== logicalId)
+    if (previousLogical && previousLogical !== logicalId) {
       logicalToSerial.delete(previousLogical);
+      logicalToIncarnation.delete(previousLogical);
+    }
     const previousSerial = logicalToSerial.get(logicalId);
     if (previousSerial && previousSerial !== serial)
       serialToLogical.delete(previousSerial);
+    const normalizedIncarnation = Math.max(1, Number(incarnation) || 1);
     serialToLogical.set(serial, logicalId);
     logicalToSerial.set(logicalId, serial);
-    return { serial, logicalId, documentToken: token, documentLogicalId };
+    logicalToIncarnation.set(logicalId, normalizedIncarnation);
+    return { serial, logicalId, incarnation: normalizedIncarnation, documentToken: token, documentLogicalId };
   }
 
   function lookup(node) {
     const serial = serialFor(node);
     if (!serial) return null;
+    const logicalId = serialToLogical.get(serial) ?? null;
     return {
       serial,
-      logicalId: serialToLogical.get(serial) ?? null,
+      logicalId,
+      incarnation: logicalId ? (logicalToIncarnation.get(logicalId) ?? 1) : 1,
       documentToken: token,
       documentLogicalId
     };
@@ -72,19 +82,34 @@
     if (!serial) return null;
     const node = nodeFor(serial);
     if (!node) return null;
-    return { serial, logicalId, documentToken: token, documentLogicalId };
+    return {
+      serial,
+      logicalId,
+      incarnation: logicalToIncarnation.get(logicalId) ?? 1,
+      documentToken: token,
+      documentLogicalId
+    };
   }
 
   function exportBindings() {
     const live = [];
     for (const [logicalId, serial] of logicalToSerial.entries()) {
-      if (nodeFor(serial)) live.push({ logicalId, serial });
+      if (nodeFor(serial)) {
+        live.push({
+          logicalId,
+          serial,
+          incarnation: logicalToIncarnation.get(logicalId) ?? 1
+        });
+      }
     }
     return {
-      version: 1,
+      version: 2,
       documentToken: token,
       documentLogicalId,
       sequence,
+      prerendering: Boolean(document.prerendering),
+      visibilityState: document.visibilityState,
+      wasDiscarded: Boolean(document.wasDiscarded),
       bindings: live
     };
   }
@@ -128,24 +153,21 @@
     });
   } catch {}
 
-  document.addEventListener('focusin', event => {
-    remember('focus', { serial: serialFor(event.target) });
-  }, true);
-
-  document.addEventListener('input', event => {
-    remember('input', { serial: serialFor(event.target) });
-  }, true);
-
-  document.addEventListener('change', event => {
-    remember('change', { serial: serialFor(event.target) });
-  }, true);
-
+  document.addEventListener('focusin', event => remember('focus', { serial: serialFor(event.target) }), true);
+  document.addEventListener('input', event => remember('input', { serial: serialFor(event.target) }), true);
+  document.addEventListener('change', event => remember('change', { serial: serialFor(event.target) }), true);
   document.addEventListener('selectionchange', () => remember('selection'), true);
+  document.addEventListener('visibilitychange', () => remember('visibility', { state: document.visibilityState }), true);
   globalThis.addEventListener('scroll', () => remember('scroll', { x: scrollX, y: scrollY }), { passive: true, capture: true });
+  globalThis.addEventListener('pagehide', event => remember(event.persisted ? 'bfcache-enter' : 'pagehide', { persisted: Boolean(event.persisted) }), true);
+  globalThis.addEventListener('pageshow', event => remember(event.persisted ? 'bfcache-restore' : 'pageshow', { persisted: Boolean(event.persisted) }), true);
+  globalThis.addEventListener('freeze', () => remember('freeze'), true);
+  globalThis.addEventListener('resume', () => remember('resume'), true);
+  document.addEventListener('prerenderingchange', () => remember('prerender-activate', { prerendering: Boolean(document.prerendering) }), true);
 
   Object.defineProperty(globalThis, '__eyebrowseIdentity', {
     value: Object.freeze({
-      version: 1,
+      version: 2,
       documentToken: token,
       get sequence() { return sequence; },
       serialFor,
@@ -161,5 +183,10 @@
     writable: false
   });
 
-  remember('bridge-ready', { documentToken: token });
+  remember('bridge-ready', {
+    documentToken: token,
+    prerendering: Boolean(document.prerendering),
+    visibilityState: document.visibilityState,
+    wasDiscarded: Boolean(document.wasDiscarded)
+  });
 })();
