@@ -776,3 +776,51 @@ persistent Chrome truth
 ```
 
 Then let measured evidence decide whether this candidate deserves canonical Build 002 status.
+
+---
+
+## Amendment A — Chrome DevTools / Agentic Browser Capability Expansion (2026-08-12)
+
+Status: **PROSPECTIVE CANDIDATE AMENDMENT — ACCEPTANCE NOT STARTED**
+
+Owner amendment DVA-1..DVA-67 is incorporated before measured acceptance. Full capability-delta analysis is frozen in [`10A-BUILD-002-DEVTOOLS-CAPABILITY-DELTA.md`](10A-BUILD-002-DEVTOOLS-CAPABILITY-DELTA.md). Candidate decisions are recorded in [`10B-BUILD-002-CANDIDATE-DECISIONS.md`](10B-BUILD-002-CANDIDATE-DECISIONS.md).
+
+The amendment does not change the core authority equation or any absolute Build 002 boundary. Direct dynamic CDP, Browser World Graph ownership, persistent `t_*`/`d_*`/`e_*` identity, lifecycle correctness, Program Host subordination, Skill procedural ownership, sibling-Eye boundaries, raw escape hatches, and Campaign 3 isolation remain frozen.
+
+### Additional mandatory implementation scope
+
+Before the final acceptance-candidate freeze, Build 002 must now include enough native capability and controlled fixtures to demonstrate:
+
+1. structured bounded console and exception debugging plus runtime/source association where useful;
+2. deeper Network request/response detail, bodies/streaming, WebSocket/SSE/GraphQL and initiator/source correlation where the controlled developer workflows require it;
+3. `performance.metrics`, capability-detected PerformanceTimeline, on-demand trace capture, artifact preservation, and local trace reduction;
+4. on-demand memory counters/heap usage, heap snapshot artifact capture, sampling where useful, and local heap graph reduction sufficient for a deterministic leak fixture;
+5. accessibility debugging against the existing semantic `e_*` universe;
+6. on-demand Lighthouse, including Agentic Browsing when the installed Lighthouse/Chrome combination supports it, with compact local report reduction;
+7. `agent-readiness`, `network-debug`, `memory-debug`, and `extension-debug` Skills in addition to the previously mandatory debugging/Skill family;
+8. capability-detected generic extension inspection/management in the isolated Build 002 acceptance profile;
+9. generic browser JS-dialog observation/handling;
+10. the existing mandatory WebMCP and runtime/page-tool providers, with provider/debug detail strengthened by current DevTools research;
+11. useful typed emulation plus an explicit reset path;
+12. on-demand screencast if supported by the frozen acceptance environment, otherwise explicit unsupported/defer adjudication without fake support;
+13. a developer flagship cross-Eye workflow that uses browser runtime evidence from eyeBROWSE and source engineering from CODEeye without semantic takeover;
+14. a final DevTools capability acceptance matrix comparing current Google DevTools-for-agents capability with Build 001, Build 002 implementation path, relevant Skill, and measured result.
+
+### Additional mandatory controlled gates
+
+The pre-subject deterministic fixture sequence now includes:
+
+- WebMCP flagship;
+- runtime-tool flagship;
+- performance flagship;
+- memory-leak flagship;
+- accessibility flagship;
+- extension flagship;
+- agent-readiness flagship;
+- developer cross-Eye flagship.
+
+These gates are additive to GitHub G1-G7, horizontal Skills, second-site generalization, multi-Skill composition, recovery, scale, hostile lifecycle/identity, and the frozen no-Skill control versus Skill treatment experiment.
+
+### Explicit non-adoptions remain frozen
+
+Chrome DevTools MCP/CLI do not enter the production control path. Snapshot UIDs do not replace `e_*`. Google Agentic Skills are translated into eyeBROWSE procedure/representation semantics rather than copied as tool-name macros. DevTools invocation history, MCP telemetry, loaded heap-snapshot registries, URL allow/deny policy, and verification-agent patterns do not become eyeBROWSE product architecture. PWA typed breadth is deferred unless a Build 002 workflow later earns it prospectively before the final candidate freeze.
